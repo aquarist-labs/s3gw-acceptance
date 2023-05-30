@@ -25,7 +25,7 @@ source "${SCRIPT_DIR}/helpers.sh"
 UNAME="$(uname | tr "[:upper:]" "[:lower:]")"
 
 # IMAGE_TAG is the one built from the 'make build-images'
-IMAGE_TAG="$(git describe --tags)"
+IMAGE_TAG="$(git describe --tags --always)"
 
 function check_dependency {
 	for dep in "$@"

@@ -9,7 +9,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-VERSION ?= $(shell git describe --tags)
+VERSION ?= $(shell git describe --tags --always)
 CGO_ENABLED ?= 0
 
 tag:
@@ -45,6 +45,8 @@ acceptance-cluster-delete:
 
 acceptance-cluster-setup:
 	@./scripts/cluster-setup.sh
+	k3d kubeconfig merge -ad
+	kubectl config use-context k3d-s3gw-acceptance
 
 acceptance-context-set:
 	k3d kubeconfig merge -ad

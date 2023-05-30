@@ -12,7 +12,7 @@
 
 set -e
 
-VERSION=${VERSION:-"$(git describe --tags)"}
+VERSION=${VERSION:-"$(git describe --tags --always)"}
 imageS3GW="quay.io/s3gw/s3gw"
 imageS3GWUI="quay.io/s3gw/s3gw-ui"
 imageCOSIDRIVER="quay.io/s3gw/s3gw-cosi-driver"
