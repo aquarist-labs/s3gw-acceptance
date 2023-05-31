@@ -31,26 +31,32 @@ build-images:
 	@./scripts/build-images.sh
 
 ########################################################################
-# Acceptance tests
-
-FLAKE_ATTEMPTS ?= 2
-GINKGO_NODES ?= 2
-GINKGO_POLL_PROGRESS_AFTER ?= 200s
-REGEX ?= ""
-STANDARD_TEST_OPTIONS= -v --nodes ${GINKGO_NODES} --poll-progress-after ${GINKGO_POLL_PROGRESS_AFTER} --randomize-all --flake-attempts=${FLAKE_ATTEMPTS} --fail-on-pending
+# Acceptance cluster Create/Delete/Prepare
 
 acceptance-cluster-delete:
 	k3d cluster delete s3gw-acceptance
 	@if test -f /usr/local/bin/rke2-uninstall.sh; then sudo sh /usr/local/bin/rke2-uninstall.sh; fi
 
-acceptance-cluster-setup:
-	@./scripts/cluster-setup.sh
+acceptance-cluster-create:
+	@./scripts/cluster-create.sh
 	k3d kubeconfig merge -ad
 	kubectl config use-context k3d-s3gw-acceptance
+
+acceptance-cluster-prepare:
+	@./scripts/cluster-prepare.sh
+
+acceptance-cluster-s3gw-deploy:
+	@./scripts/cluster-s3gw-deploy.sh
 
 acceptance-context-set:
 	k3d kubeconfig merge -ad
 	kubectl config use-context k3d-s3gw-acceptance
 
-acceptance-environment-prepare:
-	@./scripts/prepare-environment.sh
+########################################################################
+# Acceptance Tests
+
+FLAKE_ATTEMPTS ?= 2
+GINKGO_NODES ?= 1
+GINKGO_POLL_PROGRESS_AFTER ?= 200s
+REGEX ?= ""
+STANDARD_TEST_OPTIONS= -v --nodes ${GINKGO_NODES} --poll-progress-after ${GINKGO_POLL_PROGRESS_AFTER} --randomize-all --flake-attempts=${FLAKE_ATTEMPTS} --fail-on-pending

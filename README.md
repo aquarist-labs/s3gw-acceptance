@@ -14,7 +14,8 @@ git submodule update --init --recursive
 - Helm
 - k3d
 - kubectl
-- Go (1.19+)
+- Go (1.20+)
+- Ginkgo
 
 ## Build the s3gw's images
 
@@ -45,28 +46,46 @@ Where `{@TAG}` is the evaluation of the following expression:
 $(git describe --tags --always)
 ```
 
-## Create the cluster
+## Create the acceptance cluster
 
 You create the `k3d-s3gw-acceptance` cluster with:
 
 ```shell
-make acceptance-cluster-setup
+make acceptance-cluster-create
+```
+
+### Delete the acceptance cluster
+
+```shell
+make acceptance-cluster-delete
 ```
 
 > **WARNING**: the command updates your `.kube/config` with the credentials of
 > the newly created `k3d-s3gw-acceptance` cluster and sets the current context
 > to that one.
 
-## Prepare the environment
+## Prepare the acceptance cluster
 
-You prepare the environment with:
+You prepare the acceptance cluster with:
 
 ```shell
-make acceptance-environment-prepare
+make acceptance-cluster-prepare
 ```
 
 This imports the pre-built s3gw's images into k3d and triggers
-an helm installation of the s3gw into the cluster.
+a deployment of needed resources.
+
+## Deploy s3gw-acceptance-0/s3gw-0 instance on the acceptance cluster
+
+You deploy the `s3gw-acceptance-0/s3gw-0` instance in the acceptance
+cluster with:
+
+```shell
+make acceptance-cluster-s3gw-deploy
+```
+
+It is expected that some but not all the acceptance tests will rely
+on the `s3gw-acceptance-0/s3gw-0` instance.
 
 ## License
 

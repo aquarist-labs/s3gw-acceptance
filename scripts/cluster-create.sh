@@ -90,16 +90,4 @@ kubectl wait --for=condition=Available --namespace kube-system deployment/coredn
 kubectl wait --for=condition=Available --namespace kube-system deployment/local-path-provisioner --timeout=1200s
 date
 
-#Install the cert-manager
-kubectl create namespace cert-manager
-helm repo add jetstack https://charts.jetstack.io
-helm repo update
-helm install cert-manager --namespace cert-manager jetstack/cert-manager \
-    --set installCRDs=true \
-    --set extraArgs[0]=--enable-certificate-owner-ref=true
-
-#Install COSI resources
-kubectl create -k github.com/kubernetes-sigs/container-object-storage-interface-api
-kubectl create -k github.com/kubernetes-sigs/container-object-storage-interface-controller
-
-echo "Done! The cluster is ready."
+echo "Done! The cluster is ready. ✔️"

@@ -6,3 +6,4 @@ tmp
 bin
 .idea
 .vscode
+suiteProperties.json
