@@ -1,0 +1,47 @@
+---
+name: Nightly Tests
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Every night midnight
+  workflow_dispatch:
+
+jobs:
+  build-and-tests:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          path: s3gw-st
+          submodules: true
+
+      - name: Checkout Ceph HEAD
+        working-directory: s3gw-st/ceph
+        run: |
+          git fetch
+          git checkout s3gw
+          git submodule update --init --recursive
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.20
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Build s3gw's images and run tests
+        working-directory: s3gw-st
+        run: |
+          make build-images
+          make acceptance-cluster-create
+          make acceptance-cluster-prepare
+          make acceptance-cluster-s3gw-deploy
+          make acceptance-test-install
