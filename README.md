@@ -1,5 +1,9 @@
 # s3gw-system-tests
 
+![License](https://img.shields.io/github/license/giubacc/s3gw-system-tests)
+![Lint](https://github.com/giubacc/s3gw-system-tests/actions/workflows/lint.yaml/badge.svg)
+![Nightly Tests](https://github.com/giubacc/s3gw-system-tests/actions/workflows/nightly-tests.yaml/badge.svg)
+
 ## Bootstrap
 
 > **Before doing anything else**: ensure to execute this command after the clone:
