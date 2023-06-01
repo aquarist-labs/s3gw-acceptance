@@ -25,7 +25,10 @@ source "${SCRIPT_DIR}/helpers.sh"
 UNAME="$(uname | tr "[:upper:]" "[:lower:]")"
 
 # IMAGE_TAG is the one built from the 'make build-images'
-IMAGE_TAG="$(git describe --tags --always)"
+export IMAGE_TAG="$(git describe --tags --always)"
+
+#CHARTS VERSION
+export CHARTS_VERSION=$(helm show chart charts/charts/s3gw | grep version | cut -d':' -f 2 | sed -e 's/^[[:space:]]*//')
 
 function check_dependency {
 	for dep in "$@"
@@ -63,6 +66,9 @@ k3d image import -c s3gw-acceptance "${imageCOSIDRIVER}:${IMAGE_TAG}"
 echo "Importing locally built s3gw-cosi-driver image Completed ✔️"
 k3d image import -c s3gw-acceptance "${imageCOSISIDECAR}:${IMAGE_TAG}"
 echo "Importing locally built s3gw-cosi-sidecar image Completed ✔️"
+
+# Dump non-static properties used by acceptance tests
+dump_suite_properties
 
 echo
 echo "Done preparing k3d environment! ✔️"

@@ -20,8 +20,26 @@ function prepare_system_domain {
       echo "Couldn't find the cluster's IP address"
       exit 1
     fi
-
+    export S3GW_CLUSTER_IP="${S3GW_CLUSTER_IP}"
     export S3GW_SYSTEM_DOMAIN="${S3GW_CLUSTER_IP}.omg.howdoi.website"
   fi
   echo -e "Using \e[32m${S3GW_SYSTEM_DOMAIN}\e[0m for s3gw domain"
+}
+
+function dump_suite_properties {
+  echo CHARTS_VERSION:$CHARTS_VERSION
+  echo IMAGE_TAG:$IMAGE_TAG
+  echo S3GW_CLUSTER_IP:$S3GW_CLUSTER_IP
+  echo S3GW_SYSTEM_DOMAIN:$S3GW_SYSTEM_DOMAIN
+
+  cat > acceptance/suiteProperties.json << EOF
+{
+  "chartVersion": "$CHARTS_VERSION",
+  "imageTag": "$IMAGE_TAG",
+  "S3GW_CLUSTER_IP": "$S3GW_CLUSTER_IP",
+  "S3GW_SYSTEM_DOMAIN": "$S3GW_SYSTEM_DOMAIN"
+}
+EOF
+
+  echo -e "dumped suiteProperties.json"
 }

@@ -54,15 +54,14 @@ You create the `k3d-s3gw-acceptance` cluster with:
 make acceptance-cluster-create
 ```
 
+> **WARNING**: the command updates your `.kube/config` with the credentials of
+> the just created `k3d-s3gw-acceptance` cluster and sets its context as default.
+
 ### Delete the acceptance cluster
 
 ```shell
 make acceptance-cluster-delete
 ```
-
-> **WARNING**: the command updates your `.kube/config` with the credentials of
-> the newly created `k3d-s3gw-acceptance` cluster and sets the current context
-> to that one.
 
 ## Prepare the acceptance cluster
 
@@ -86,6 +85,12 @@ make acceptance-cluster-s3gw-deploy
 
 It is expected that some but not all the acceptance tests will rely
 on the `s3gw-acceptance-0/s3gw-0` instance.
+
+## Trigger tests on the acceptance cluster
+
+```shell
+make acceptance-test-install
+```
 
 ## License
 

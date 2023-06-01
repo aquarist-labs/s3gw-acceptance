@@ -27,7 +27,7 @@ var _ = Describe("charts installation", func() {
 	chartName := "s3gw"
 
 	BeforeEach(func() {
-		suitePropertiesF, err := os.Open("suiteProperties.json")
+		suitePropertiesF, err := os.Open("../suiteProperties.json")
 		Expect(err).ToNot(HaveOccurred())
 		defer suitePropertiesF.Close()
 		byteValue, _ := io.ReadAll(suitePropertiesF)
@@ -101,7 +101,7 @@ var _ = Describe("charts installation", func() {
 			//radosgw args
 			Expect(radosgwArgsNode[0].(string)).To(Equal("--rgw-dns-name"))
 
-			pubDNSName := deploymentName + "-" + namespace + "." + suiteProperties["S3GW_CLUSTER_IP"].(string) + "." + suiteProperties["S3GW_SYSTEM_DOMAIN"].(string)
+			pubDNSName := deploymentName + "-" + namespace + "." + suiteProperties["S3GW_SYSTEM_DOMAIN"].(string)
 			Expect(strings.Split(radosgwArgsNode[1].(string), ", ")[0]).To(BeEquivalentTo(pubDNSName))
 
 			privDNSName := deploymentName + "-" + namespace + "." + namespace + ".svc.cluster.local"
