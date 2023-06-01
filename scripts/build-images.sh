@@ -19,9 +19,9 @@ imageCOSIDRIVER="quay.io/s3gw/s3gw-cosi-driver"
 imageCOSISIDECAR="quay.io/s3gw/s3gw-cosi-sidecar"
 
 # Build images
-docker build -t "${imageS3GW}:${VERSION}" -t "${imageS3GW}:latest" -f dockerfiles/Dockerfile.s3gw .
-docker build -t "${imageS3GWUI}:${VERSION}" -t "${imageS3GWUI}:latest" -f ui/src/frontend/Dockerfile ui/src/frontend
 (cd cosi-driver; make build)
 docker build -t "${imageCOSIDRIVER}:${VERSION}" -t "${imageCOSIDRIVER}:latest" -f cosi-driver/Dockerfile cosi-driver
 (cd cosi-sidecar; make build)
 docker build -t "${imageCOSISIDECAR}:${VERSION}" -t "${imageCOSISIDECAR}:latest" -f cosi-sidecar/Dockerfile cosi-sidecar
+docker build -t "${imageS3GWUI}:${VERSION}" -t "${imageS3GWUI}:latest" -f ui/src/frontend/Dockerfile ui/src/frontend
+docker build -t "${imageS3GW}:${VERSION}" -t "${imageS3GW}:latest" -f dockerfiles/Dockerfile.s3gw .

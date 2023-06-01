@@ -74,7 +74,7 @@ make acceptance-cluster-prepare
 This imports the pre-built s3gw's images into k3d and triggers
 a deployment of needed resources.
 
-## Deploy s3gw-acceptance-0/s3gw-0 instance on the acceptance cluster
+## Optionally deploy s3gw-acceptance-0/s3gw-0 instance on the acceptance cluster
 
 You deploy the `s3gw-acceptance-0/s3gw-0` instance in the acceptance
 cluster with:
@@ -83,8 +83,7 @@ cluster with:
 make acceptance-cluster-s3gw-deploy
 ```
 
-It is expected that some but not all the acceptance tests will rely
-on the `s3gw-acceptance-0/s3gw-0` instance.
+Acceptance tests are **NOT** relying on the `s3gw-acceptance-0/s3gw-0` instance.
 
 ## Trigger tests on the acceptance cluster
 
@@ -94,7 +93,7 @@ make acceptance-test-install
 
 ## License
 
-Copyright (c) 2020-2023 [SUSE, LLC](http://suse.com)
+Copyright (c) 2022-2023 [SUSE, LLC](http://suse.com)
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

@@ -29,7 +29,8 @@ function deploy_s3gw_latest_released {
   helm repo update
   helm upgrade --wait --install -n s3gw-acceptance-0 --create-namespace s3gw-0 s3gw/s3gw \
     --set publicDomain="$S3GW_SYSTEM_DOMAIN" \
-    --set ui.publicDomain="$S3GW_SYSTEM_DOMAIN"
+    --set ui.publicDomain="$S3GW_SYSTEM_DOMAIN" \
+    --set cosi.enabled=true
 }
 
 function deploy_s3gw_local {
@@ -40,6 +41,7 @@ function deploy_s3gw_local {
     --set ui.imageTag="${IMAGE_TAG}" \
     --set cosi.driver.imageTag="${IMAGE_TAG}" \
     --set cosi.sidecar.imageTag="${IMAGE_TAG}" \
+    --set cosi.enabled=true \
     s3gw-0 ./charts/charts/s3gw --wait "$@"
 }
 

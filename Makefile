@@ -45,8 +45,11 @@ acceptance-cluster-create:
 acceptance-cluster-prepare:
 	@./scripts/cluster-prepare.sh
 
-acceptance-cluster-s3gw-deploy:
+acceptance-cluster-s3gw-0-deploy:
 	@./scripts/cluster-s3gw-deploy.sh
+
+acceptance-cluster-s3gw-0-undeploy:
+	helm uninstall -n s3gw-acceptance-0 s3gw-0
 
 acceptance-context-set:
 	k3d kubeconfig merge -ad
