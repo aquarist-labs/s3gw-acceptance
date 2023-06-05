@@ -1,0 +1,73 @@
+---
+name: Release Tests
+
+# TAG specification
+#
+# CP: Charts version PREVIOUS
+# C:  Charts version TARGET
+#
+# IP: Image version PREVIOUS
+# I:  Image version TARGET
+#
+# IMPORT: build & import TARGET images (I)
+# NIMPORT: don't build & don't import TARGET images (I), fetch images from registry instead
+#
+# CP.CP.CP_C.C.C_IP.IP.IP_I.I.I_IMPORT
+# CP.CP.CP_C.C.C_IP.IP.IP_I.I.I_NIMPORT
+#
+# 0.16.0_0.17.0_0.16.0_0.17.0_IMPORT
+# 0.16.0_0.16.0_0.16.0_0.16.0_NIMPORT
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  release-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.20'
+
+      - name: Setup Ginkgo Test Framework
+        run: go install github.com/onsi/ginkgo/v2/ginkgo
+
+      - name: Setup k3d
+        uses: nolar/setup-k3d-k3s@v1
+        with:
+          skip-creation: true
+
+      - name: Prepare Acceptance Cluster
+        run: |
+          GH_TAG=${{ github.ref_name }}
+          echo "GH_TAG             : $GH_TAG"
+          export CHARTS_VER_PREV=$(echo $GH_TAG | cut -d'_' -f 1)
+          export CHARTS_VER=$(echo $GH_TAG | cut -d'_' -f 2)
+          export IMAGE_TAG_PREV=$(echo $GH_TAG | cut -d'_' -f 3)
+          export IMAGE_TAG=$(echo $GH_TAG | cut -d'_' -f 4)
+          export IMPORT_VAL=$(echo $GH_TAG | cut -d'_' -f 5)
+          echo "previous charts-ver  : $CHARTS_VER_PREV"
+          echo "current charts-ver   : $CHARTS_VER"
+          echo "previous image-tag   : $IMAGE_TAG_PREV"
+          echo "current image-tag    : $IMAGE_TAG"
+          make acceptance-cluster-create
+          if [[ "${IMPORT_VAL}" == "NIMPORT" ]]; then
+            export SKIP_IMPORT_IMAGES=1
+            echo "Build & Import images: NO"
+          else
+            echo "Build & Import images: YES"
+            make build-images
+          fi
+          make acceptance-cluster-prepare
+
+      - name: Run Acceptance Tests
+        run: |
+          make acceptance-test-install

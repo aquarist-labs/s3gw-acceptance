@@ -27,15 +27,19 @@ function prepare_system_domain {
 }
 
 function dump_suite_properties {
-  echo CHARTS_VERSION:$CHARTS_VERSION
+  echo CHARTS_VER_PREV:$CHARTS_VER_PREV
+  echo CHARTS_VER:$CHARTS_VER
+  echo IMAGE_TAG_PREV:$IMAGE_TAG_PREV
   echo IMAGE_TAG:$IMAGE_TAG
   echo S3GW_CLUSTER_IP:$S3GW_CLUSTER_IP
   echo S3GW_SYSTEM_DOMAIN:$S3GW_SYSTEM_DOMAIN
 
   cat > acceptance/suiteProperties.json << EOF
 {
-  "chartVersion": "$CHARTS_VERSION",
-  "imageTag": "$IMAGE_TAG",
+  "CHARTS_VER_PREV": "$CHARTS_VER_PREV",
+  "CHARTS_VER": "$CHARTS_VER",
+  "IMAGE_TAG_PREV": "$IMAGE_TAG_PREV",
+  "IMAGE_TAG": "$IMAGE_TAG",
   "S3GW_CLUSTER_IP": "$S3GW_CLUSTER_IP",
   "S3GW_SYSTEM_DOMAIN": "$S3GW_SYSTEM_DOMAIN"
 }

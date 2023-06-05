@@ -25,20 +25,16 @@ source "${SCRIPT_DIR}/helpers.sh"
 UNAME="$(uname | tr "[:upper:]" "[:lower:]")"
 
 # IMAGE_TAG is the one built from the 'make build-images'
-export IMAGE_TAG="$(git describe --tags --always)"
+IMAGE_TAG=${IMAGE_TAG:-$(git describe --tags --always)}
 
 #CHARTS VERSION
-export CHARTS_VERSION=$(helm show chart charts/charts/s3gw | grep version | cut -d':' -f 2 | sed -e 's/^[[:space:]]*//')
+CHARTS_VER=${CHARTS_VER:-$(helm show chart charts/charts/s3gw | grep version | cut -d':' -f 2 | sed -e 's/^[[:space:]]*//')}
+#export CHARTS_VER=$CHARTS_VER
 
-function check_dependency {
-	for dep in "$@"
-	do
-		if ! [ -x "$(command -v $dep)" ]; then
-			echo "Error: ${dep} is not installed." >&2
-  			exit 1
-		fi
-	done
-}
+echo "cluster-prepare previous charts-ver  : $CHARTS_VER_PREV"
+echo "cluster-prepare current charts-ver   : $CHARTS_VER"
+echo "cluster-prepare previous image-tag   : $IMAGE_TAG_PREV"
+echo "cluster-prepare current image-tag    : $IMAGE_TAG"
 
 # Ensure we have a value for --system-domain
 prepare_system_domain
@@ -46,26 +42,22 @@ prepare_system_domain
 echo "Preparing k3d environment"
 
 #Install the cert-manager
+if ! [[ -v SKIP_CM_INSTALL ]]; then
 kubectl create namespace cert-manager
 helm repo add jetstack https://charts.jetstack.io
 helm repo update
 helm install cert-manager --namespace cert-manager jetstack/cert-manager \
     --set installCRDs=true \
-    --set extraArgs[0]=--enable-certificate-owner-ref=true
+    --set extraArgs[0]=--enable-certificate-owner-ref=true \
+    --version 1.10 \
+    --wait
+fi
 
 #Install COSI resources
+if ! [[ -v SKIP_COSI_CRD_INSTALL ]]; then
 kubectl create -k github.com/kubernetes-sigs/container-object-storage-interface-api
 kubectl create -k github.com/kubernetes-sigs/container-object-storage-interface-controller
-
-echo "Importing locally built s3gw images"
-k3d image import -c s3gw-acceptance "${imageS3GW}:${IMAGE_TAG}"
-echo "Importing locally built s3gw image Completed ✔️"
-k3d image import -c s3gw-acceptance "${imageS3GWUI}:${IMAGE_TAG}"
-echo "Importing locally built s3gw-ui image Completed ✔️"
-k3d image import -c s3gw-acceptance "${imageCOSIDRIVER}:${IMAGE_TAG}"
-echo "Importing locally built s3gw-cosi-driver image Completed ✔️"
-k3d image import -c s3gw-acceptance "${imageCOSISIDECAR}:${IMAGE_TAG}"
-echo "Importing locally built s3gw-cosi-sidecar image Completed ✔️"
+fi
 
 # Dump non-static properties used by acceptance tests
 dump_suite_properties

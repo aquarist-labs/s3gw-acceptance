@@ -30,13 +30,16 @@ var _ = Describe("charts installations", Label("Charts"), func() {
 	s3gwUiImageName := "quay.io/s3gw/s3gw-ui"
 
 	BeforeEach(func() {
-		suitePropertiesF, err := os.Open("../suiteProperties.json")
-		Expect(err).ToNot(HaveOccurred())
-		defer suitePropertiesF.Close()
-		byteValue, _ := io.ReadAll(suitePropertiesF)
-		err = json.Unmarshal([]byte(byteValue), &suiteProperties)
-		Expect(err).ToNot(HaveOccurred())
-		Expect(suiteProperties).ToNot(BeNil())
+		if suitePropertiesF, err := os.Open("../suiteProperties.json"); err == nil {
+			defer suitePropertiesF.Close()
+			byteValue, _ := io.ReadAll(suitePropertiesF)
+			err = json.Unmarshal([]byte(byteValue), &suiteProperties)
+			Expect(err).ToNot(HaveOccurred())
+		} else {
+			//make this fail
+			Expect(err).ToNot(HaveOccurred())
+			Expect(suiteProperties).ToNot(BeNil())
+		}
 	})
 
 	AfterEach(func() {
@@ -50,10 +53,10 @@ var _ = Describe("charts installations", Label("Charts"), func() {
 			out, err := proc.Run("../..", true, "helm", "install", "--create-namespace", "-n", namespace,
 				"--set", "publicDomain="+suiteProperties["S3GW_SYSTEM_DOMAIN"].(string),
 				"--set", "ui.publicDomain="+suiteProperties["S3GW_SYSTEM_DOMAIN"].(string),
-				"--set", "imageTag="+suiteProperties["imageTag"].(string),
-				"--set", "ui.imageTag="+suiteProperties["imageTag"].(string),
-				"--set", "cosi.driver.imageTag="+suiteProperties["imageTag"].(string),
-				"--set", "cosi.sidecar.imageTag="+suiteProperties["imageTag"].(string),
+				"--set", "imageTag=v"+suiteProperties["IMAGE_TAG"].(string),
+				"--set", "ui.imageTag=v"+suiteProperties["IMAGE_TAG"].(string),
+				"--set", "cosi.driver.imageTag=v"+suiteProperties["IMAGE_TAG"].(string),
+				"--set", "cosi.sidecar.imageTag=v"+suiteProperties["IMAGE_TAG"].(string),
 				releaseName, chartsRoot, "--wait")
 			Expect(err).ToNot(HaveOccurred(), out)
 		})
@@ -92,7 +95,7 @@ var _ = Describe("charts installations", Label("Charts"), func() {
 				Expect(labelNode["app.kubernetes.io/managed-by"].(string)).To(Equal("Helm"))
 				Expect(labelNode["app.kubernetes.io/name"].(string)).To(Equal(chartName))
 				Expect(labelNode["app.kubernetes.io/version"].(string)).To(Equal("latest"))
-				Expect(labelNode["helm.sh/chart"].(string)).To(Equal(chartName + "-" + suiteProperties["chartVersion"].(string)))
+				Expect(labelNode["helm.sh/chart"].(string)).To(Equal(chartName + "-" + suiteProperties["CHARTS_VER"].(string)))
 
 				//replicas
 				Expect(dJson["spec"].(map[string]interface{})["replicas"].(float64)).To(BeEquivalentTo(1))
@@ -139,7 +142,7 @@ var _ = Describe("charts installations", Label("Charts"), func() {
 				Expect(radosgwEnvFromNode[0].(map[string]interface{})["secretRef"].(map[string]interface{})["name"].(string)).To(Equal(releaseName + "-" + namespace + "-creds"))
 
 				//image
-				Expect(radosgwNode["image"].(string)).To(Equal(s3gwImageName + ":" + suiteProperties["imageTag"].(string)))
+				Expect(radosgwNode["image"].(string)).To(Equal(s3gwImageName + ":v" + suiteProperties["IMAGE_TAG"].(string)))
 
 				//imagePullPolicy
 				Expect(radosgwNode["imagePullPolicy"].(string)).To(Equal("IfNotPresent"))
@@ -205,7 +208,7 @@ var _ = Describe("charts installations", Label("Charts"), func() {
 				Expect(labelNode["app.kubernetes.io/managed-by"].(string)).To(Equal("Helm"))
 				Expect(labelNode["app.kubernetes.io/name"].(string)).To(Equal(chartName))
 				Expect(labelNode["app.kubernetes.io/version"].(string)).To(Equal("latest"))
-				Expect(labelNode["helm.sh/chart"].(string)).To(Equal(chartName + "-" + suiteProperties["chartVersion"].(string)))
+				Expect(labelNode["helm.sh/chart"].(string)).To(Equal(chartName + "-" + suiteProperties["CHARTS_VER"].(string)))
 
 				//replicas
 				Expect(dJson["spec"].(map[string]interface{})["replicas"].(float64)).To(BeEquivalentTo(1))
@@ -235,7 +238,7 @@ var _ = Describe("charts installations", Label("Charts"), func() {
 				Expect(uiEnvFromNode[1].(map[string]interface{})["secretRef"].(map[string]interface{})["name"].(string)).To(Equal(releaseName + "-" + namespace + "-creds"))
 
 				//image
-				Expect(uiNode["image"].(string)).To(Equal(s3gwUiImageName + ":" + suiteProperties["imageTag"].(string)))
+				Expect(uiNode["image"].(string)).To(Equal(s3gwUiImageName + ":v" + suiteProperties["IMAGE_TAG"].(string)))
 
 				//imagePullPolicy
 				Expect(uiNode["imagePullPolicy"].(string)).To(Equal("IfNotPresent"))
@@ -260,10 +263,10 @@ var _ = Describe("charts installations", Label("Charts"), func() {
 			out, err := proc.Run("../..", true, "helm", "install", "--create-namespace", "-n", namespace,
 				"--set", "publicDomain="+suiteProperties["S3GW_SYSTEM_DOMAIN"].(string),
 				"--set", "ui.publicDomain="+suiteProperties["S3GW_SYSTEM_DOMAIN"].(string),
-				"--set", "imageTag="+suiteProperties["imageTag"].(string),
-				"--set", "ui.imageTag="+suiteProperties["imageTag"].(string),
-				"--set", "cosi.driver.imageTag="+suiteProperties["imageTag"].(string),
-				"--set", "cosi.sidecar.imageTag="+suiteProperties["imageTag"].(string),
+				"--set", "imageTag=v"+suiteProperties["IMAGE_TAG"].(string),
+				"--set", "ui.imageTag=v"+suiteProperties["IMAGE_TAG"].(string),
+				"--set", "cosi.driver.imageTag=v"+suiteProperties["IMAGE_TAG"].(string),
+				"--set", "cosi.sidecar.imageTag=v"+suiteProperties["IMAGE_TAG"].(string),
 				"--set", "cosi.enabled=true",
 				releaseName, chartsRoot, "--wait")
 			Expect(err).ToNot(HaveOccurred(), out)

@@ -1,18 +1,21 @@
-# s3gw-system-tests
+# s3gw-testing
 
 ![License](https://img.shields.io/github/license/giubacc/s3gw-system-tests)
 ![Lint](https://github.com/giubacc/s3gw-system-tests/actions/workflows/lint.yaml/badge.svg)
 ![Nightly Tests](https://github.com/giubacc/s3gw-system-tests/actions/workflows/nightly-tests.yaml/badge.svg)
 
-## Bootstrap
+## Local setup
 
-> **Before doing anything else**: ensure to execute this command after the clone:
+### Bootstrap
+
+> **Before doing anything else**: ensure to execute the following command
+> after the clone:
 
 ```shell
 git submodule update --init --recursive
 ```
 
-## Requirements
+### Requirements
 
 - Docker, Docker compose
 - Helm
@@ -21,7 +24,7 @@ git submodule update --init --recursive
 - Go (1.20+)
 - Ginkgo
 
-## Build the s3gw's images
+### Build the s3gw's images
 
 Before creating the `k3d-s3gw-acceptance` cluster,
 you have to build the images:
@@ -50,7 +53,7 @@ Where `{@TAG}` is the evaluation of the following expression:
 $(git describe --tags --always)
 ```
 
-## Create the acceptance cluster
+### Create the acceptance cluster
 
 You create the `k3d-s3gw-acceptance` cluster with:
 
@@ -67,7 +70,7 @@ make acceptance-cluster-create
 make acceptance-cluster-delete
 ```
 
-## Prepare the acceptance cluster
+### Prepare the acceptance cluster
 
 You prepare the acceptance cluster with:
 
@@ -78,7 +81,7 @@ make acceptance-cluster-prepare
 This imports the pre-built s3gw's images into k3d and triggers
 a deployment of needed resources.
 
-## Optionally deploy s3gw-acceptance-0/s3gw-0 instance on the acceptance cluster
+### Deploy the s3gw-acceptance-0/s3gw-0 instance on the acceptance cluster
 
 You deploy the `s3gw-acceptance-0/s3gw-0` instance in the acceptance
 cluster with:
@@ -89,11 +92,17 @@ make acceptance-cluster-s3gw-deploy
 
 Acceptance tests are **NOT** relying on the `s3gw-acceptance-0/s3gw-0` instance.
 
-## Trigger tests on the acceptance cluster
+### Trigger tests on the acceptance cluster
 
 ```shell
 make acceptance-test-install
 ```
+
+## Release tests
+
+When releasing a new s3gw version it is appropriate to run a series of
+specialized tests dedicated to ensure installation and
+upgrade correctness of s3gw the in the Kubernetes cluster.
 
 ## License
 

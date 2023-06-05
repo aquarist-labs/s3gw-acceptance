@@ -16,6 +16,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 NETWORK_NAME=s3gw-acceptance
 MIRROR_NAME=s3gw-acceptance-registry-mirror
 CLUSTER_NAME=s3gw-acceptance
+K3S_IMAGE=${K3S_IMAGE:-rancher/k3s:v1.25.10-k3s1}
 export KUBECONFIG=$SCRIPT_DIR/../tmp/acceptance-kubeconfig
 
 check_deps() {
@@ -70,10 +71,10 @@ EOF
 echo "Creating a new one named $CLUSTER_NAME"
 if [ -z ${EXPOSE_ACCEPTANCE_CLUSTER_PORTS+x} ]; then
   # Without exposing ports on the host:
-  k3d cluster create $CLUSTER_NAME --network $NETWORK_NAME --registry-config $TMP_CONFIG $S3GW_K3D_INSTALL_ARGS
+  k3d cluster create $CLUSTER_NAME --network $NETWORK_NAME --registry-config $TMP_CONFIG --image "$K3S_IMAGE" $S3GW_K3D_INSTALL_ARGS
 else
   # Exposing ports on the host:
-  k3d cluster create $CLUSTER_NAME --network $NETWORK_NAME --registry-config $TMP_CONFIG -p '80:80@server:0' -p '443:443@server:0' $S3GW_K3D_INSTALL_ARGS
+  k3d cluster create $CLUSTER_NAME --network $NETWORK_NAME --registry-config $TMP_CONFIG --image "$K3S_IMAGE" -p '80:80@server:0' -p '443:443@server:0' $S3GW_K3D_INSTALL_ARGS
 fi
 k3d kubeconfig get $CLUSTER_NAME > $KUBECONFIG
 

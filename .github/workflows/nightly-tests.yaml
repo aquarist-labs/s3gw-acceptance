@@ -38,7 +38,7 @@ jobs:
 
       - name: Build s3gw's images and run tests
         run: |
-          make build-images
           make acceptance-cluster-create
+          make build-images
           make acceptance-cluster-prepare
           make acceptance-test-install
