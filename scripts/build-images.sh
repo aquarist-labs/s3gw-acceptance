@@ -12,7 +12,7 @@
 
 set -e
 
-VERSION=${VERSION:-"$(git describe --tags --always)"}
+IMAGE_TAG=${IMAGE_TAG:-"$(git describe --tags --always)"}
 imageS3GW="quay.io/s3gw/s3gw"
 imageS3GWUI="quay.io/s3gw/s3gw-ui"
 imageCOSIDRIVER="quay.io/s3gw/s3gw-cosi-driver"
@@ -20,8 +20,8 @@ imageCOSISIDECAR="quay.io/s3gw/s3gw-cosi-sidecar"
 
 # Build images
 (cd cosi-driver; make build)
-docker build -t "${imageCOSIDRIVER}:${VERSION}" -t "${imageCOSIDRIVER}:latest" -f cosi-driver/Dockerfile cosi-driver
+docker build -t "${imageCOSIDRIVER}:v${IMAGE_TAG}" -t "${imageCOSIDRIVER}:latest" -f cosi-driver/Dockerfile cosi-driver
 (cd cosi-sidecar; make build)
-docker build -t "${imageCOSISIDECAR}:${VERSION}" -t "${imageCOSISIDECAR}:latest" -f cosi-sidecar/Dockerfile cosi-sidecar
-docker build -t "${imageS3GWUI}:${VERSION}" -t "${imageS3GWUI}:latest" -f ui/src/frontend/Dockerfile ui/src/frontend
-docker build -t "${imageS3GW}:${VERSION}" -t "${imageS3GW}:latest" -f dockerfiles/Dockerfile.s3gw .
+docker build -t "${imageCOSISIDECAR}:v${IMAGE_TAG}" -t "${imageCOSISIDECAR}:latest" -f cosi-sidecar/Dockerfile cosi-sidecar
+docker build -t "${imageS3GWUI}:v${IMAGE_TAG}" -t "${imageS3GWUI}:latest" -f ui/src/frontend/Dockerfile ui/src/frontend
+docker build -t "${imageS3GW}:v${IMAGE_TAG}" -t "${imageS3GW}:latest" -f dockerfiles/Dockerfile.s3gw .

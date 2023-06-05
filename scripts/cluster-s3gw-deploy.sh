@@ -37,10 +37,10 @@ function deploy_s3gw_local {
   helm upgrade --install --create-namespace -n s3gw-acceptance-0 \
     --set publicDomain="$S3GW_SYSTEM_DOMAIN" \
     --set ui.publicDomain="$S3GW_SYSTEM_DOMAIN" \
-    --set imageTag="${IMAGE_TAG}" \
-    --set ui.imageTag="${IMAGE_TAG}" \
-    --set cosi.driver.imageTag="${IMAGE_TAG}" \
-    --set cosi.sidecar.imageTag="${IMAGE_TAG}" \
+    --set imageTag=v"${IMAGE_TAG}" \
+    --set ui.imageTag=v"${IMAGE_TAG}" \
+    --set cosi.driver.imageTag=v"${IMAGE_TAG}" \
+    --set cosi.sidecar.imageTag=v"${IMAGE_TAG}" \
     --set cosi.enabled=true \
     s3gw-0 ./charts/charts/s3gw --wait "$@"
 }
