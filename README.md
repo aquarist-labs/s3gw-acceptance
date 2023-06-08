@@ -4,6 +4,27 @@
 ![Lint](https://github.com/giubacc/s3gw-system-tests/actions/workflows/lint.yaml/badge.svg)
 ![Nightly Tests](https://github.com/giubacc/s3gw-system-tests/actions/workflows/nightly-tests.yaml/badge.svg)
 
+<!-- TOC -->
+
+- [s3gw-testing](#s3gw-testing)
+  - [Local setup](#local-setup)
+    - [Bootstrap](#bootstrap)
+    - [Requirements](#requirements)
+    - [Create the acceptance cluster](#create-the-acceptance-cluster)
+    - [Delete the acceptance cluster](#delete-the-acceptance-cluster)
+    - [Build the s3gw's images](#build-the-s3gws-images)
+    - [Prepare the acceptance cluster](#prepare-the-acceptance-cluster)
+    - [Deploy the s3gw-acceptance-0/s3gw-0 instance on the acceptance cluster](#deploy-the-s3gw-acceptance-0s3gw-0-instance-on-the-acceptance-cluster)
+    - [Trigger tests on the acceptance cluster](#trigger-tests-on-the-acceptance-cluster)
+  - [Acceptance tests](#acceptance-tests)
+    - [Installation \& Upgrade tests](#installation--upgrade-tests)
+      - [Tag based release tests](#tag-based-release-tests)
+      - [Tag pattern](#tag-pattern)
+      - [Examples](#examples)
+  - [License](#license)
+
+<!-- /TOC -->
+
 ## Local setup
 
 ### Bootstrap
@@ -24,10 +45,27 @@ git submodule update --init --recursive
 - Go (1.20+)
 - Ginkgo
 
+### Create the acceptance cluster
+
+You create the `k3d-s3gw-acceptance` cluster with:
+
+```shell
+make acceptance-cluster-create
+```
+
+> **WARNING**: the command updates your `.kube/config` with the credentials of
+> the just created `k3d-s3gw-acceptance` cluster and sets its context as default.
+
+### Delete the acceptance cluster
+
+```shell
+make acceptance-cluster-delete
+```
+
 ### Build the s3gw's images
 
-Before creating the `k3d-s3gw-acceptance` cluster,
-you have to build the images:
+After you have created the `k3d-s3gw-acceptance` cluster,
+you can build the s3gw's images and import those into the cluster:
 
 ```shell
 make build-images
@@ -53,23 +91,6 @@ Where `{@TAG}` is the evaluation of the following expression:
 $(git describe --tags --always)
 ```
 
-### Create the acceptance cluster
-
-You create the `k3d-s3gw-acceptance` cluster with:
-
-```shell
-make acceptance-cluster-create
-```
-
-> **WARNING**: the command updates your `.kube/config` with the credentials of
-> the just created `k3d-s3gw-acceptance` cluster and sets its context as default.
-
-### Delete the acceptance cluster
-
-```shell
-make acceptance-cluster-delete
-```
-
 ### Prepare the acceptance cluster
 
 You prepare the acceptance cluster with:
@@ -78,19 +99,19 @@ You prepare the acceptance cluster with:
 make acceptance-cluster-prepare
 ```
 
-This imports the pre-built s3gw's images into k3d and triggers
-a deployment of needed resources.
+This triggers the deployment of needed resources.
 
 ### Deploy the s3gw-acceptance-0/s3gw-0 instance on the acceptance cluster
 
-You deploy the `s3gw-acceptance-0/s3gw-0` instance in the acceptance
+Optionally, you can deploy the `s3gw-acceptance-0/s3gw-0` instance in the acceptance
 cluster with:
 
 ```shell
 make acceptance-cluster-s3gw-deploy
 ```
 
-Acceptance tests are **NOT** relying on the `s3gw-acceptance-0/s3gw-0` instance.
+Note that acceptance tests are **NOT** relying on the `s3gw-acceptance-0/s3gw-0`
+instance.
 
 ### Trigger tests on the acceptance cluster
 
@@ -109,12 +130,12 @@ the upgrade correctness of s3gw the in the Kubernetes cluster.
 #### Tag based release tests
 
 With a specific Tag pattern, you can trigger a specific
-test workflow involving:
+test workflow the involves:
 
-- a **PREVIOUS** `helm charts` version
-- a **TARGET** `helm charts` version
-- a **PREVIOUS** `image` version
-- a **TARGET** `image` version
+- The **PREVIOUS** `helm charts` version
+- The **TARGET** `helm charts` version
+- The **PREVIOUS** `image` version
+- The **TARGET** `image` version
 
 You can also specify if all the s3gw's images should be built from the
 local checkout in the respective submodule.
@@ -151,7 +172,7 @@ In this case you build the Tag with the following values:
 - `I` : `0.18.0`
 - `IMPORT`
 
-You specify `IMPORT` in the hypothesis that the `0.18.0` s3gw's images still
+You specify `IMPORT` in the case that the `0.18.0` s3gw's images still
 don't exist on the registry. In this case, the directive triggers a local
 build based on the current submodules revision.
 
@@ -172,7 +193,7 @@ git push origin 0.17.0_0.18.0_0.17.0_0.18.0_IMPORT
 Once the Tag has been pushed on github, you can follow the execution of the
 testing workflow.
 
-## LicenseS
+## License
 
 Copyright (c) 2022-2023 [SUSE, LLC](http://suse.com)
 
