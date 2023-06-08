@@ -28,6 +28,8 @@ var _ = Describe("charts installations", Label("Charts"), func() {
 	chartName := "s3gw"
 	s3gwImageName := "quay.io/s3gw/s3gw"
 	s3gwUiImageName := "quay.io/s3gw/s3gw-ui"
+	s3gwCOSIDriverImageName := "quay.io/s3gw/s3gw-cosi-driver"
+	s3gwCOSISidecarImageName := "quay.io/s3gw/s3gw-cosi-sidecar"
 
 	BeforeEach(func() {
 		if suitePropertiesF, err := os.Open("../suiteProperties.json"); err == nil {
@@ -118,50 +120,50 @@ var _ = Describe("charts installations", Label("Charts"), func() {
 				//containers
 				containersNode := dJson["spec"].(map[string]interface{})["template"].(map[string]interface{})["spec"].(map[string]interface{})["containers"].([]interface{})
 
-				radosgwNode := containersNode[0].(map[string]interface{})
-				radosgwArgsNode := radosgwNode["args"].([]interface{})
+				cnt0Node := containersNode[0].(map[string]interface{})
+				cnt0ArgsNode := cnt0Node["args"].([]interface{})
 
 				//radosgw args
-				Expect(radosgwArgsNode[0].(string)).To(Equal("--rgw-dns-name"))
+				Expect(cnt0ArgsNode[0].(string)).To(Equal("--rgw-dns-name"))
 
 				pubDNSName := releaseName + "-" + namespace + "." + suiteProperties["S3GW_SYSTEM_DOMAIN"].(string)
-				Expect(strings.Split(radosgwArgsNode[1].(string), ", ")[0]).To(BeEquivalentTo(pubDNSName))
+				Expect(strings.Split(cnt0ArgsNode[1].(string), ", ")[0]).To(BeEquivalentTo(pubDNSName))
 
 				privDNSName := releaseName + "-" + namespace + "." + namespace + ".svc.cluster.local"
-				Expect(strings.Split(radosgwArgsNode[1].(string), ", ")[1]).To(BeEquivalentTo(privDNSName))
+				Expect(strings.Split(cnt0ArgsNode[1].(string), ", ")[1]).To(BeEquivalentTo(privDNSName))
 
-				Expect(radosgwArgsNode[2].(string)).To(Equal("--rgw-backend-store"))
-				Expect(radosgwArgsNode[3].(string)).To(Equal("sfs"))
-				Expect(radosgwArgsNode[4].(string)).To(Equal("--debug-rgw"))
-				Expect(radosgwArgsNode[5].(string)).To(Equal("1"))
-				Expect(radosgwArgsNode[6].(string)).To(Equal("--rgw_frontends"))
-				Expect(radosgwArgsNode[7].(string)).To(Equal("beast port=7480 ssl_port=7481 ssl_certificate=/s3gw-cluster-ip-tls/tls.crt ssl_private_key=/s3gw-cluster-ip-tls/tls.key"))
+				Expect(cnt0ArgsNode[2].(string)).To(Equal("--rgw-backend-store"))
+				Expect(cnt0ArgsNode[3].(string)).To(Equal("sfs"))
+				Expect(cnt0ArgsNode[4].(string)).To(Equal("--debug-rgw"))
+				Expect(cnt0ArgsNode[5].(string)).To(Equal("1"))
+				Expect(cnt0ArgsNode[6].(string)).To(Equal("--rgw_frontends"))
+				Expect(cnt0ArgsNode[7].(string)).To(Equal("beast port=7480 ssl_port=7481 ssl_certificate=/s3gw-cluster-ip-tls/tls.crt ssl_private_key=/s3gw-cluster-ip-tls/tls.key"))
 
 				//envFrom
-				radosgwEnvFromNode := radosgwNode["envFrom"].([]interface{})
-				Expect(radosgwEnvFromNode[0].(map[string]interface{})["secretRef"].(map[string]interface{})["name"].(string)).To(Equal(releaseName + "-" + namespace + "-creds"))
+				cnt0EnvFromNode := cnt0Node["envFrom"].([]interface{})
+				Expect(cnt0EnvFromNode[0].(map[string]interface{})["secretRef"].(map[string]interface{})["name"].(string)).To(Equal(releaseName + "-" + namespace + "-creds"))
 
 				//image
-				Expect(radosgwNode["image"].(string)).To(Equal(s3gwImageName + ":v" + suiteProperties["IMAGE_TAG"].(string)))
+				Expect(cnt0Node["image"].(string)).To(Equal(s3gwImageName + ":v" + suiteProperties["IMAGE_TAG"].(string)))
 
 				//imagePullPolicy
-				Expect(radosgwNode["imagePullPolicy"].(string)).To(Equal("IfNotPresent"))
+				Expect(cnt0Node["imagePullPolicy"].(string)).To(Equal("IfNotPresent"))
 
 				//name
-				Expect(radosgwNode["name"].(string)).To(Equal(releaseName))
+				Expect(cnt0Node["name"].(string)).To(Equal(releaseName))
 
-				radosgwPortsNode := radosgwNode["ports"].([]interface{})
+				cnt0PortsNode := cnt0Node["ports"].([]interface{})
 
 				//ports
-				Expect(radosgwPortsNode[0].(map[string]interface{})["containerPort"].(float64)).To(BeEquivalentTo(7480))
-				Expect(radosgwPortsNode[0].(map[string]interface{})["name"].(string)).To(Equal("s3"))
-				Expect(radosgwPortsNode[0].(map[string]interface{})["protocol"].(string)).To(Equal("TCP"))
+				Expect(cnt0PortsNode[0].(map[string]interface{})["containerPort"].(float64)).To(BeEquivalentTo(7480))
+				Expect(cnt0PortsNode[0].(map[string]interface{})["name"].(string)).To(Equal("s3"))
+				Expect(cnt0PortsNode[0].(map[string]interface{})["protocol"].(string)).To(Equal("TCP"))
 
-				Expect(radosgwPortsNode[1].(map[string]interface{})["containerPort"].(float64)).To(BeEquivalentTo(7481))
-				Expect(radosgwPortsNode[1].(map[string]interface{})["name"].(string)).To(Equal("s3-tls"))
-				Expect(radosgwPortsNode[1].(map[string]interface{})["protocol"].(string)).To(Equal("TCP"))
+				Expect(cnt0PortsNode[1].(map[string]interface{})["containerPort"].(float64)).To(BeEquivalentTo(7481))
+				Expect(cnt0PortsNode[1].(map[string]interface{})["name"].(string)).To(Equal("s3-tls"))
+				Expect(cnt0PortsNode[1].(map[string]interface{})["protocol"].(string)).To(Equal("TCP"))
 
-				volumeMountsNode := radosgwNode["volumeMounts"].([]interface{})
+				volumeMountsNode := cnt0Node["volumeMounts"].([]interface{})
 
 				//volume mounts
 				Expect(volumeMountsNode[0].(map[string]interface{})["mountPath"].(string)).To(Equal("/data"))
@@ -230,27 +232,27 @@ var _ = Describe("charts installations", Label("Charts"), func() {
 
 				//containers
 				containersNode := dJson["spec"].(map[string]interface{})["template"].(map[string]interface{})["spec"].(map[string]interface{})["containers"].([]interface{})
-				uiNode := containersNode[0].(map[string]interface{})
+				cnt0Node := containersNode[0].(map[string]interface{})
 
 				//envFrom
-				uiEnvFromNode := uiNode["envFrom"].([]interface{})
-				Expect(uiEnvFromNode[0].(map[string]interface{})["configMapRef"].(map[string]interface{})["name"].(string)).To(Equal(releaseName + "-" + namespace + "-config"))
-				Expect(uiEnvFromNode[1].(map[string]interface{})["secretRef"].(map[string]interface{})["name"].(string)).To(Equal(releaseName + "-" + namespace + "-creds"))
+				cnt0EnvFromNode := cnt0Node["envFrom"].([]interface{})
+				Expect(cnt0EnvFromNode[0].(map[string]interface{})["configMapRef"].(map[string]interface{})["name"].(string)).To(Equal(releaseName + "-" + namespace + "-config"))
+				Expect(cnt0EnvFromNode[1].(map[string]interface{})["secretRef"].(map[string]interface{})["name"].(string)).To(Equal(releaseName + "-" + namespace + "-creds"))
 
 				//image
-				Expect(uiNode["image"].(string)).To(Equal(s3gwUiImageName + ":v" + suiteProperties["IMAGE_TAG"].(string)))
+				Expect(cnt0Node["image"].(string)).To(Equal(s3gwUiImageName + ":v" + suiteProperties["IMAGE_TAG"].(string)))
 
 				//imagePullPolicy
-				Expect(uiNode["imagePullPolicy"].(string)).To(Equal("IfNotPresent"))
+				Expect(cnt0Node["imagePullPolicy"].(string)).To(Equal("IfNotPresent"))
 
 				//name
-				Expect(uiNode["name"].(string)).To(Equal("s3gw-ui"))
+				Expect(cnt0Node["name"].(string)).To(Equal("s3gw-ui"))
 
-				uiPortsNode := uiNode["ports"].([]interface{})
+				cnt0PortsNode := cnt0Node["ports"].([]interface{})
 
 				//ports
-				Expect(uiPortsNode[0].(map[string]interface{})["containerPort"].(float64)).To(BeEquivalentTo(8080))
-				Expect(uiPortsNode[0].(map[string]interface{})["protocol"].(string)).To(Equal("TCP"))
+				Expect(cnt0PortsNode[0].(map[string]interface{})["containerPort"].(float64)).To(BeEquivalentTo(8080))
+				Expect(cnt0PortsNode[0].(map[string]interface{})["protocol"].(string)).To(Equal("TCP"))
 			})
 		})
 	})
@@ -278,16 +280,116 @@ var _ = Describe("charts installations", Label("Charts"), func() {
 		})
 
 		It("has the expected s3gw-cosi deployment static values", func() {
-			out, err := proc.Kubectl("get", "deployments",
-				"-n", namespace,
-				releaseName,
-				"-ojson")
-			Expect(err).ToNot(HaveOccurred())
+			By("getting the objectstorage-provisioner deployment", func() {
+				out, err := proc.Kubectl("get", "deployments",
+					"-n", namespace,
+					releaseName+"-objectstorage-provisioner",
+					"-ojson")
+				Expect(err).ToNot(HaveOccurred())
 
-			var dJson map[string]interface{}
-			err = json.Unmarshal([]byte(out), &dJson)
-			Expect(err).ToNot(HaveOccurred())
-			Expect(dJson).ToNot(BeNil())
+				var dJson map[string]interface{}
+				err = json.Unmarshal([]byte(out), &dJson)
+				Expect(err).ToNot(HaveOccurred())
+				Expect(dJson).ToNot(BeNil())
+
+				//deployment metadata
+				Expect(dJson["metadata"].(map[string]interface{})["name"].(string)).To(Equal(releaseName + "-objectstorage-provisioner"))
+				Expect(dJson["metadata"].(map[string]interface{})["namespace"].(string)).To(Equal(namespace))
+
+				//annotations
+				annotationsNode := dJson["metadata"].(map[string]interface{})["annotations"].(map[string]interface{})
+				Expect(annotationsNode["deployment.kubernetes.io/revision"].(string)).To(Equal("1"))
+				Expect(annotationsNode["meta.helm.sh/release-name"].(string)).To(Equal(releaseName))
+				Expect(annotationsNode["meta.helm.sh/release-namespace"].(string)).To(Equal(namespace))
+
+				//labels
+				labelNode := dJson["metadata"].(map[string]interface{})["labels"].(map[string]interface{})
+				Expect(labelNode["app.kubernetes.io/instance"].(string)).To(Equal(releaseName))
+				Expect(labelNode["app.kubernetes.io/managed-by"].(string)).To(Equal("Helm"))
+				Expect(labelNode["app.kubernetes.io/name"].(string)).To(Equal(chartName))
+				Expect(labelNode["app.kubernetes.io/version"].(string)).To(Equal("latest"))
+				Expect(labelNode["helm.sh/chart"].(string)).To(Equal(chartName + "-" + suiteProperties["CHARTS_VER"].(string)))
+
+				//replicas
+				Expect(dJson["spec"].(map[string]interface{})["replicas"].(float64)).To(BeEquivalentTo(1))
+
+				//matching labels
+				matchingLabelsNode := dJson["spec"].(map[string]interface{})["selector"].(map[string]interface{})["matchLabels"].(map[string]interface{})
+				Expect(matchingLabelsNode["app.kubernetes.io/component"]).To(Equal("cosi"))
+				Expect(matchingLabelsNode["app.kubernetes.io/instance"]).To(Equal(releaseName))
+				Expect(matchingLabelsNode["app.kubernetes.io/name"]).To(Equal(chartName))
+
+				//strategy
+				Expect(dJson["spec"].(map[string]interface{})["strategy"].(map[string]interface{})["type"].(string)).To(Equal("Recreate"))
+
+				//spec template metadata labels
+				specTemplateMetadataLables := dJson["spec"].(map[string]interface{})["template"].(map[string]interface{})["metadata"].(map[string]interface{})["labels"].(map[string]interface{})
+				Expect(specTemplateMetadataLables["app.kubernetes.io/component"]).To(Equal("cosi"))
+				Expect(specTemplateMetadataLables["app.kubernetes.io/instance"]).To(Equal(releaseName))
+				Expect(specTemplateMetadataLables["app.kubernetes.io/name"]).To(Equal(chartName))
+
+				//containers
+				containersNode := dJson["spec"].(map[string]interface{})["template"].(map[string]interface{})["spec"].(map[string]interface{})["containers"].([]interface{})
+
+				cnt0Node := containersNode[0].(map[string]interface{})
+
+				//envFrom
+				cnt0EnvFromNode := cnt0Node["envFrom"].([]interface{})
+				Expect(cnt0EnvFromNode[0].(map[string]interface{})["secretRef"].(map[string]interface{})["name"].(string)).To(Equal(releaseName + "-" + namespace + "-objectstorage-provisioner"))
+
+				//image
+				Expect(cnt0Node["image"].(string)).To(Equal(s3gwCOSIDriverImageName + ":v" + suiteProperties["IMAGE_TAG"].(string)))
+
+				//imagePullPolicy
+				Expect(cnt0Node["imagePullPolicy"].(string)).To(Equal("IfNotPresent"))
+
+				//name
+				Expect(cnt0Node["name"].(string)).To(Equal(releaseName + "-cosi-driver"))
+
+				volumeMountsNode := cnt0Node["volumeMounts"].([]interface{})
+
+				//volume mounts
+				Expect(volumeMountsNode[0].(map[string]interface{})["mountPath"].(string)).To(Equal("/var/lib/cosi"))
+				Expect(volumeMountsNode[0].(map[string]interface{})["name"].(string)).To(Equal("socket"))
+
+				cnt1Node := containersNode[1].(map[string]interface{})
+
+				//envFrom
+				cnt1EnvFromNode := cnt1Node["envFrom"].([]interface{})
+				Expect(cnt1EnvFromNode[0].(map[string]interface{})["secretRef"].(map[string]interface{})["name"].(string)).To(Equal(releaseName + "-" + namespace + "-objectstorage-provisioner"))
+
+				//image
+				Expect(cnt1Node["image"].(string)).To(Equal(s3gwCOSISidecarImageName + ":v" + suiteProperties["IMAGE_TAG"].(string)))
+
+				cnt1ArgsNode := cnt1Node["args"].([]interface{})
+
+				//cnt1 args
+				Expect(cnt1ArgsNode[0].(string)).To(Equal("--v=5"))
+
+				cnt1EnvNode := cnt1Node["env"].([]interface{})
+
+				//name
+				Expect(cnt1EnvNode[0].(map[string]interface{})["name"].(string)).To(Equal("POD_NAMESPACE"))
+
+				volumeMountsNode = cnt1Node["volumeMounts"].([]interface{})
+
+				//volume mounts
+				Expect(volumeMountsNode[0].(map[string]interface{})["mountPath"].(string)).To(Equal("/var/lib/cosi"))
+				Expect(volumeMountsNode[0].(map[string]interface{})["name"].(string)).To(Equal("socket"))
+
+				//serviceAccount
+				serviceAccount := dJson["spec"].(map[string]interface{})["template"].(map[string]interface{})["spec"].(map[string]interface{})["serviceAccount"].(string)
+				Expect(serviceAccount).To(Equal(releaseName + "-" + namespace + "-objectstorage-provisioner-sa"))
+
+				//serviceAccountName
+				serviceAccountName := dJson["spec"].(map[string]interface{})["template"].(map[string]interface{})["spec"].(map[string]interface{})["serviceAccountName"].(string)
+				Expect(serviceAccountName).To(Equal(releaseName + "-" + namespace + "-objectstorage-provisioner-sa"))
+
+				//volumes
+				volumesNode := dJson["spec"].(map[string]interface{})["template"].(map[string]interface{})["spec"].(map[string]interface{})["volumes"].([]interface{})
+
+				Expect(volumesNode[0].(map[string]interface{})["name"].(string)).To(Equal("socket"))
+			})
 		})
 	})
 })

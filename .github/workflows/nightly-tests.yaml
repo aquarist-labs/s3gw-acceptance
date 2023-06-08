@@ -42,3 +42,5 @@ jobs:
           make build-images
           make acceptance-cluster-prepare
           make acceptance-test-install
+          make acceptance-test-upgrade
+          make acceptance-test-cosi

@@ -65,3 +65,9 @@ STANDARD_TEST_OPTIONS= -v --nodes ${GINKGO_NODES} --poll-progress-after ${GINKGO
 
 acceptance-test-install:
 	ginkgo ${STANDARD_TEST_OPTIONS} acceptance/install
+
+acceptance-test-upgrade:
+	ginkgo ${STANDARD_TEST_OPTIONS} acceptance/upgrade
+
+acceptance-test-cosi:
+	ginkgo ${STANDARD_TEST_OPTIONS} acceptance/cosi
