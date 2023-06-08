@@ -39,6 +39,3 @@ if ! [[ -v SKIP_IMPORT_IMAGES ]]; then
   k3d image import -c s3gw-acceptance "${imageS3GW}:v${IMAGE_TAG}"
   echo "Importing s3gw image Completed ✔️"
 fi
-
-# Build images
-
