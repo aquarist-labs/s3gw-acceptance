@@ -1,4 +1,4 @@
-// Copyright © 2021 - 2023 SUSE LLC
+// Copyright © 2023 SUSE LLC
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -17,7 +17,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/aquarist-labs/s3gw/acceptance/helpers/proc"
+	. "github.com/aquarist-labs/s3gw/acceptance/helpers"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -48,11 +48,11 @@ var _ = Describe("charts installations", Label("Charts"), func() {
 	})
 
 	Context("deploying s3gw-def/s3gw-def", Label("Default"), func() {
-		namespace := "s3gw-def"
-		releaseName := "s3gw-def"
+		namespace := NanoSecName("s3gw-def")
+		releaseName := NanoSecName("s3gw-def")
 
 		BeforeEach(func() {
-			out, err := proc.Run("../..", true, "helm", "install", "--create-namespace", "-n", namespace,
+			out, err := Run("../..", true, "helm", "install", "--create-namespace", "-n", namespace,
 				"--set", "publicDomain="+suiteProperties["S3GW_SYSTEM_DOMAIN"].(string),
 				"--set", "ui.publicDomain="+suiteProperties["S3GW_SYSTEM_DOMAIN"].(string),
 				"--set", "imageTag=v"+suiteProperties["IMAGE_TAG"].(string),
@@ -64,13 +64,13 @@ var _ = Describe("charts installations", Label("Charts"), func() {
 		})
 
 		AfterEach(func() {
-			out, err := proc.Run("../..", true, "helm", "uninstall", "-n", namespace, releaseName, "--wait")
+			out, err := Run("../..", true, "helm", "uninstall", "-n", namespace, releaseName, "--wait")
 			Expect(err).ToNot(HaveOccurred(), out)
 		})
 
 		It("deploys expected resources", func() {
 			By("getting the s3gw deployment", func() {
-				out, err := proc.Kubectl("get", "deployments",
+				out, err := Kubectl("get", "deployments",
 					"-n", namespace,
 					releaseName,
 					"-ojson")
@@ -183,7 +183,7 @@ var _ = Describe("charts installations", Label("Charts"), func() {
 			})
 
 			By("getting the s3gw-ui deployment", func() {
-				out, err := proc.Kubectl("get", "deployments",
+				out, err := Kubectl("get", "deployments",
 					"-n", namespace,
 					releaseName+"-ui",
 					"-ojson")
@@ -258,11 +258,11 @@ var _ = Describe("charts installations", Label("Charts"), func() {
 	})
 
 	Context("deploying s3gw-acceptance-cosi/s3gw-cosi", Label("COSI"), func() {
-		namespace := "s3gw-acceptance-cosi"
-		releaseName := "s3gw-cosi"
+		namespace := NanoSecName("s3gw-acceptance-cosi")
+		releaseName := NanoSecName("s3gw-cosi")
 
 		BeforeEach(func() {
-			out, err := proc.Run("../..", true, "helm", "install", "--create-namespace", "-n", namespace,
+			out, err := Run("../..", true, "helm", "install", "--create-namespace", "-n", namespace,
 				"--set", "publicDomain="+suiteProperties["S3GW_SYSTEM_DOMAIN"].(string),
 				"--set", "ui.publicDomain="+suiteProperties["S3GW_SYSTEM_DOMAIN"].(string),
 				"--set", "imageTag=v"+suiteProperties["IMAGE_TAG"].(string),
@@ -275,13 +275,13 @@ var _ = Describe("charts installations", Label("Charts"), func() {
 		})
 
 		AfterEach(func() {
-			out, err := proc.Run("../..", true, "helm", "uninstall", "-n", namespace, releaseName, "--wait")
+			out, err := Run("../..", true, "helm", "uninstall", "-n", namespace, releaseName, "--wait")
 			Expect(err).ToNot(HaveOccurred(), out)
 		})
 
 		It("has the expected s3gw-cosi deployment static values", func() {
 			By("getting the objectstorage-provisioner deployment", func() {
-				out, err := proc.Kubectl("get", "deployments",
+				out, err := Kubectl("get", "deployments",
 					"-n", namespace,
 					releaseName+"-objectstorage-provisioner",
 					"-ojson")
