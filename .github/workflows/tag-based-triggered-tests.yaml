@@ -32,6 +32,13 @@ jobs:
         with:
           submodules: true
 
+      - name: Checkout Ceph HEAD
+        working-directory: ceph
+        run: |
+          git fetch
+          git checkout s3gw
+          git submodule update --init --recursive
+
       - name: Set up Go
         uses: actions/setup-go@v4
         with:

@@ -2,11 +2,11 @@
 
 ![License](https://img.shields.io/github/license/giubacc/s3gw-system-tests)
 ![Lint](https://github.com/giubacc/s3gw-system-tests/actions/workflows/lint.yaml/badge.svg)
-![Nightly Tests](https://github.com/giubacc/s3gw-system-tests/actions/workflows/nightly-tests.yaml/badge.svg)
 
 <!-- TOC -->
 
 - [s3gw-testing](#s3gw-testing)
+  - [Test Status Overview](#test-status-overview)
   - [Local setup](#local-setup)
     - [Bootstrap](#bootstrap)
     - [Requirements](#requirements)
@@ -18,12 +18,16 @@
     - [Trigger tests on the acceptance cluster](#trigger-tests-on-the-acceptance-cluster)
   - [Acceptance tests](#acceptance-tests)
     - [Installation \& Upgrade tests](#installation--upgrade-tests)
-      - [Tag based release tests](#tag-based-release-tests)
+      - [Tag based triggered tests](#tag-based-triggered-tests)
       - [Tag pattern](#tag-pattern)
       - [Examples](#examples)
   - [License](#license)
 
 <!-- /TOC -->
+
+## Test Status Overview
+
+![Last Release Weekly Tests](https://github.com/giubacc/s3gw-system-tests/actions/workflows/last-release-weekly-tests.yaml/badge.svg)
 
 ## Local setup
 
@@ -127,7 +131,7 @@ When releasing a new s3gw version it is appropriate to run a series of
 specialized tests dedicated to ensure the installation and
 the upgrade correctness of s3gw the in the Kubernetes cluster.
 
-#### Tag based release tests
+#### Tag based triggered tests
 
 With a specific Tag pattern, you can trigger a specific
 test workflow the involves:
