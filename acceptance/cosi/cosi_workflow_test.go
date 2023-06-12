@@ -55,8 +55,8 @@ spec:
 var _ = Describe("COSI workflow - single instance", Label("COSI"), func() {
 	var suiteProperties map[string]interface{}
 	chartsRoot := "charts/charts/s3gw"
-	namespace := NanoSecName("s3gw-cosi-workflow")
-	releaseName := NanoSecName("s3gw-cosi-workflow")
+	namespace := NanoSecName("s3gw-cosi-wf")
+	releaseName := NanoSecName("s3gw-cosi-wf")
 	driverName := releaseName + "." + namespace + ".objectstorage.k8s.io"
 
 	BeforeEach(func() {

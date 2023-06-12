@@ -22,7 +22,7 @@ SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 source "${SCRIPT_DIR}/helpers.sh"
 
 # IMAGE_TAG is the one built from the 'make build-images'
-IMAGE_TAG="$(git describe --tags --always)"
+IMAGE_TAG=${IMAGE_TAG:-$(git describe --tags --always)}
 
 function deploy_s3gw_latest_released {
   helm repo add s3gw https://aquarist-labs.github.io/s3gw-charts
