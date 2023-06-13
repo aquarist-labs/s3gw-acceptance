@@ -52,6 +52,7 @@ jobs:
           git add ./assets/tests/u0.15.0_0.16.0.ts
           git commit -m "${{ env.CI_COMMIT_MESSAGE }}"
           git push
+          sleep 2
 
       - name: Process Failure
         if: needs.upgrade-tests-invoke-0_15_0-0_16_0.outputs.result != 0
@@ -64,6 +65,7 @@ jobs:
           git add ./assets/tests/u0.15.0_0.16.0.ts
           git commit -m "${{ env.CI_COMMIT_MESSAGE }}"
           git push
+          sleep 2
 
   upgrade-tests-result-0_15_0-0_17_0:
     env:
@@ -88,6 +90,7 @@ jobs:
           git add ./assets/tests/u0.15.0_0.17.0.ts
           git commit -m "${{ env.CI_COMMIT_MESSAGE }}"
           git push
+          sleep 2
 
       - name: Process Failure
         if: needs.upgrade-tests-invoke-0_15_0-0_17_0.outputs.result != 0
@@ -100,6 +103,7 @@ jobs:
           git add ./assets/tests/u0.15.0_0.17.0.ts
           git commit -m "${{ env.CI_COMMIT_MESSAGE }}"
           git push
+          sleep 2
 
   upgrade-tests-result-0_16_0-0_17_0:
     env:
@@ -124,6 +128,7 @@ jobs:
           git add ./assets/tests/u0.16.0_0.17.0.ts
           git commit -m "${{ env.CI_COMMIT_MESSAGE }}"
           git push
+          sleep 2
 
       - name: Process Failure
         if: needs.upgrade-tests-invoke-0_16_0-0_17_0.outputs.result != 0
@@ -136,3 +141,4 @@ jobs:
           git add ./assets/tests/u0.16.0_0.17.0.ts
           git commit -m "${{ env.CI_COMMIT_MESSAGE }}"
           git push
+          sleep 2
