@@ -54,4 +54,80 @@ jobs:
 
       - name: Process Failure
         if: needs.upgrade-tests-invoke-0_15_0-0_16_0.outputs.result != 0
-        run: echo ${{ needs.upgrade-tests-invoke-0_15_0-0_16_0.outputs.result }}
+        run: |
+          cp -f ./assets/KO.svg ./assets/tests/u0.15.0_0.16.0.svg
+          date +%s%N > ./assets/tests/u0.15.0_0.16.0.ts
+          git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
+          git config --global user.email 's3gw@suse.com'
+          git add ./assets/tests/u0.15.0_0.16.0.svg
+          git add ./assets/tests/u0.15.0_0.16.0.ts
+          git commit -m "${{ env.CI_COMMIT_MESSAGE }}"
+          git push
+
+  upgrade-tests-result-0_15_0-0_17_0:
+    env:
+      CI_COMMIT_MESSAGE: Set upgrade-tests results for 0_15_0-0_17_0
+      CI_COMMIT_AUTHOR: Continuous Integration
+    runs-on: ubuntu-latest
+    needs: upgrade-tests-invoke-0_15_0-0_17_0
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Process Success
+        if: needs.upgrade-tests-invoke-0_15_0-0_17_0.outputs.result == 0
+        run: |
+          cp -f ./assets/OK.svg ./assets/tests/u0.15.0_0.17.0.svg
+          date +%s%N > ./assets/tests/u0.15.0_0.17.0.ts
+          git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
+          git config --global user.email 's3gw@suse.com'
+          git add ./assets/tests/u0.15.0_0.17.0.svg
+          git add ./assets/tests/u0.15.0_0.17.0.ts
+          git commit -m "${{ env.CI_COMMIT_MESSAGE }}"
+          git push
+
+      - name: Process Failure
+        if: needs.upgrade-tests-invoke-0_15_0-0_17_0.outputs.result != 0
+        run: |
+          cp -f ./assets/KO.svg ./assets/tests/u0.15.0_0.17.0.svg
+          date +%s%N > ./assets/tests/u0.15.0_0.17.0.ts
+          git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
+          git config --global user.email 's3gw@suse.com'
+          git add ./assets/tests/u0.15.0_0.17.0.svg
+          git add ./assets/tests/u0.15.0_0.17.0.ts
+          git commit -m "${{ env.CI_COMMIT_MESSAGE }}"
+          git push
+
+  upgrade-tests-result-0_16_0-0_17_0:
+    env:
+      CI_COMMIT_MESSAGE: Set upgrade-tests results for 0_16_0-0_17_0
+      CI_COMMIT_AUTHOR: Continuous Integration
+    runs-on: ubuntu-latest
+    needs: upgrade-tests-invoke-0_16_0-0_17_0
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Process Success
+        if: needs.upgrade-tests-invoke-0_16_0-0_17_0.outputs.result == 0
+        run: |
+          cp -f ./assets/OK.svg ./assets/tests/u0.16.0_0.17.0.svg
+          date +%s%N > ./assets/tests/u0.16.0_0.17.0.ts
+          git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
+          git config --global user.email 's3gw@suse.com'
+          git add ./assets/tests/u0.16.0_0.17.0.svg
+          git add ./assets/tests/u0.16.0_0.17.0.ts
+          git commit -m "${{ env.CI_COMMIT_MESSAGE }}"
+          git push
+
+      - name: Process Failure
+        if: needs.upgrade-tests-invoke-0_16_0-0_17_0.outputs.result != 0
+        run: |
+          cp -f ./assets/KO.svg ./assets/tests/u0.16.0_0.17.0.svg
+          date +%s%N > ./assets/tests/u0.16.0_0.17.0.ts
+          git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
+          git config --global user.email 's3gw@suse.com'
+          git add ./assets/tests/u0.16.0_0.17.0.svg
+          git add ./assets/tests/u0.16.0_0.17.0.ts
+          git commit -m "${{ env.CI_COMMIT_MESSAGE }}"
+          git push
