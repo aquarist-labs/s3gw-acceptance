@@ -1,0 +1,57 @@
+---
+name: Upgrade Tests Caller
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  upgrade-tests-invoke-0_15_0-0_16_0:
+    uses: ./.github/workflows/upgrade-tests.yaml
+    with:
+      charts-ver-prev: "0.15.0"
+      charts-ver: "0.16.0"
+      image-tag-prev: "0.15.0"
+      image-tag: "0.16.0"
+  upgrade-tests-invoke-0_15_0-0_17_0:
+    uses: ./.github/workflows/upgrade-tests.yaml
+    with:
+      charts-ver-prev: "0.15.0"
+      charts-ver: "0.17.0"
+      image-tag-prev: "0.15.0"
+      image-tag: "0.17.0"
+  upgrade-tests-invoke-0_16_0-0_17_0:
+    uses: ./.github/workflows/upgrade-tests.yaml
+    with:
+      charts-ver-prev: "0.16.0"
+      charts-ver: "0.17.0"
+      image-tag-prev: "0.16.0"
+      image-tag: "0.17.0"
+
+  upgrade-tests-result-0_15_0-0_16_0:
+    env:
+      CI_COMMIT_MESSAGE: Set upgrade-tests results for 0_15_0-0_16_0
+      CI_COMMIT_AUTHOR: Continuous Integration
+    runs-on: ubuntu-latest
+    needs: upgrade-tests-invoke-0_15_0-0_16_0
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Process Success
+        if: needs.upgrade-tests-invoke-0_15_0-0_16_0.outputs.result == 0
+        run: |
+          cp -f ./assets/OK.svg ./assets/tests/u0.15.0_0.16.0.svg
+          date +%s%N > ./assets/tests/u0.15.0_0.16.0.ts
+          git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
+          git config --global user.email 's3gw@suse.com'
+          git add ./assets/tests/u0.15.0_0.16.0.svg
+          git add ./assets/tests/u0.15.0_0.16.0.ts
+          git commit -m "${{ env.CI_COMMIT_MESSAGE }}"
+          git push
+
+      - name: Process Failure
+        if: needs.upgrade-tests-invoke-0_15_0-0_16_0.outputs.result != 0
+        run: echo ${{ needs.upgrade-tests-invoke-0_15_0-0_16_0.outputs.result }}

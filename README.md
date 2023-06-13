@@ -7,6 +7,8 @@
 
 - [s3gw-testing](#s3gw-testing)
   - [Test Status Overview](#test-status-overview)
+    - [Recurring Tests](#recurring-tests)
+    - [Upgrade Test Matrix](#upgrade-test-matrix)
   - [Local setup](#local-setup)
     - [Bootstrap](#bootstrap)
     - [Requirements](#requirements)
@@ -27,7 +29,22 @@
 
 ## Test Status Overview
 
+### Recurring Tests
+
 ![Last Release Weekly Tests](https://github.com/giubacc/s3gw-system-tests/actions/workflows/last-release-weekly-tests.yaml/badge.svg)
+
+### Upgrade Test Matrix
+
+| From/To |0.15.0|0.16.0|0.17.0|
+|:----|:----:|:----:|:----:|
+|0.15.0||![.](./assets/tests/u0.15.0_0.16.0.svg)|![.](./assets/tests/u0.15.0_0.17.0.svg)|
+|0.16.0|||![.](./assets/tests/u0.16.0_0.17.0.svg)|
+
+|Sym|Mean|
+|:--|:--|
+|![.](./assets/OK.svg)|upgrade test has passed|
+|![.](./assets/KO.svg)|upgrade test has failed|
+|![.](./assets/not-apply.svg)|upgrade test cannot apply due to releases incompatibility|
 
 ## Local setup
 

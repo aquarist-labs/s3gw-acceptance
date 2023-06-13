@@ -1,0 +1,61 @@
+---
+name: Upgrade Tests
+
+on:
+  workflow_call:
+    inputs:
+      charts-ver-prev:
+        required: true
+        type: string
+      charts-ver:
+        required: true
+        type: string
+      image-tag-prev:
+        required: true
+        type: string
+      image-tag:
+        required: true
+        type: string
+    outputs:
+      result:
+        description: "The result of the testing process"
+        value: ${{ jobs.upgrade-tests.outputs.result }}
+
+jobs:
+  upgrade-tests:
+    runs-on: ubuntu-latest
+    outputs:
+      result: ${{ steps.upgrade-tests.outputs.exitcode }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.20'
+
+      - name: Setup Ginkgo Test Framework
+        run: go install github.com/onsi/ginkgo/v2/ginkgo
+
+      - name: Setup k3d
+        uses: nolar/setup-k3d-k3s@v1
+        with:
+          skip-creation: true
+
+      - name: Run Upgrade tests
+        id: upgrade-tests
+        env:
+          SKIP_IMPORT_IMAGES: 1
+          CHARTS_VER_PREV: ${{ inputs.charts-ver-prev }}
+          CHARTS_VER: ${{ inputs.charts-ver }}
+          IMAGE_TAG_PREV: ${{ inputs.image-tag-prev }}
+          IMAGE_TAG: ${{ inputs.image-tag }}
+        run: |
+          make acceptance-cluster-create
+          make acceptance-cluster-prepare
+          set +e
+          make acceptance-test-upgrade
+          exitcode="$?"
+          echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
+          exit "$exitcode"
