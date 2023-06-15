@@ -9,7 +9,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package install_test
+package upgrade_test
 
 import (
 	"encoding/json"
@@ -22,14 +22,12 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("charts installations", Label("Charts"), func() {
+var _ = Describe("charts upgrades", Label("Charts"), func() {
 	var suiteProperties map[string]interface{}
-	chartsRoot := "charts/charts/s3gw"
+	chartsRoot := "s3gw/s3gw"
 	chartName := "s3gw"
 	s3gwImageName := "quay.io/s3gw/s3gw"
 	s3gwUiImageName := "quay.io/s3gw/s3gw-ui"
-	s3gwCOSIDriverImageName := "quay.io/s3gw/s3gw-cosi-driver"
-	s3gwCOSISidecarImageName := "quay.io/s3gw/s3gw-cosi-sidecar"
 
 	BeforeEach(func() {
 		if suitePropertiesF, err := os.Open("../suiteProperties.json"); err == nil {
@@ -47,23 +45,49 @@ var _ = Describe("charts installations", Label("Charts"), func() {
 	AfterEach(func() {
 	})
 
-	When("deploying s3gw-def/s3gw-def", Label("Default"), func() {
-		namespace := NanoSecName("s3gw-def")
-		releaseName := NanoSecName("s3gw-def")
+	Context("Upgrading s3gw chart [previous -> target], default installation", Label("Default"), func() {
+		namespace := NanoSecName("s3gw")
+		releaseName := NanoSecName("s3gw")
+		expectedRevisionOnUpgrade := "2"
 
 		BeforeEach(func() {
-			args := []string{"install", "--create-namespace", "-n", namespace,
-				"--set", "publicDomain=" + suiteProperties["S3GW_SYSTEM_DOMAIN"].(string),
-				"--set", "ui.publicDomain=" + suiteProperties["S3GW_SYSTEM_DOMAIN"].(string),
-				"--set", "imageTag=v" + suiteProperties["IMAGE_TAG"].(string),
-				"--set", "ui.imageTag=v" + suiteProperties["IMAGE_TAG"].(string),
-				releaseName, chartsRoot, "--wait"}
+			if len(suiteProperties["RELEASE"].(string)) > 0 {
+				releaseName = suiteProperties["RELEASE"].(string)
+			}
+			if len(suiteProperties["NAMESPACE"].(string)) > 0 {
+				namespace = suiteProperties["NAMESPACE"].(string)
+			}
+			if len(suiteProperties["EXPECTED_REVISION_ON_UPGRADE"].(string)) > 0 {
+				expectedRevisionOnUpgrade = suiteProperties["EXPECTED_REVISION_ON_UPGRADE"].(string)
+			}
 
-			if extraArgs := suiteProperties["CHARTS_EXTRA_ARGS"].(string); len(extraArgs) > 0 {
-				out, err := Run("../..", true, "helm", append(args, strings.Split(extraArgs, " ")...)...)
+			argsPrev := []string{"install", "--create-namespace", "-n", namespace,
+				releaseName, chartsRoot,
+				"--version", suiteProperties["CHARTS_VER_PREV"].(string),
+				"--wait",
+				"--set", "publicDomain=" + suiteProperties["S3GW_SYSTEM_DOMAIN"].(string),
+				"--set", "ui.publicDomain=" + suiteProperties["S3GW_SYSTEM_DOMAIN"].(string)}
+
+			if extraArgsPrev := suiteProperties["CHARTS_PREV_EXTRA_ARGS"].(string); len(extraArgsPrev) > 0 {
+				out, err := Run("../..", true, "helm", append(argsPrev, strings.Split(extraArgsPrev, " ")...)...)
 				Expect(err).ToNot(HaveOccurred(), out)
 			} else {
-				out, err := Run("../..", true, "helm", args...)
+				out, err := Run("../..", true, "helm", argsPrev...)
+				Expect(err).ToNot(HaveOccurred(), out)
+			}
+
+			argsCurr := []string{"upgrade", releaseName, "-n", namespace, chartsRoot,
+				"--version", suiteProperties["CHARTS_VER"].(string),
+				"--wait",
+				"--set", "publicDomain=" + suiteProperties["S3GW_SYSTEM_DOMAIN"].(string),
+				"--set", "ui.publicDomain=" + suiteProperties["S3GW_SYSTEM_DOMAIN"].(string),
+				"--set", "storageClass.name=local-path"}
+
+			if extraArgsCurr := suiteProperties["CHARTS_EXTRA_ARGS"].(string); len(extraArgsCurr) > 0 {
+				out, err := Run("../..", true, "helm", append(argsCurr, strings.Split(extraArgsCurr, " ")...)...)
+				Expect(err).ToNot(HaveOccurred(), out)
+			} else {
+				out, err := Run("../..", true, "helm", argsCurr...)
 				Expect(err).ToNot(HaveOccurred(), out)
 			}
 		})
@@ -73,7 +97,7 @@ var _ = Describe("charts installations", Label("Charts"), func() {
 			Expect(err).ToNot(HaveOccurred(), out)
 		})
 
-		It("deploys expected resources", func() {
+		It("deployed resources have [target] version properties", func() {
 			By("getting the s3gw deployment", func() {
 				out, err := Kubectl("get", "deployments",
 					"-n", namespace,
@@ -92,7 +116,7 @@ var _ = Describe("charts installations", Label("Charts"), func() {
 
 				//annotations
 				annotationsNode := dJson["metadata"].(map[string]interface{})["annotations"].(map[string]interface{})
-				Expect(annotationsNode["deployment.kubernetes.io/revision"].(string)).To(Equal("1"))
+				Expect(annotationsNode["deployment.kubernetes.io/revision"].(string)).To(Equal(expectedRevisionOnUpgrade))
 				Expect(annotationsNode["meta.helm.sh/release-name"].(string)).To(Equal(releaseName))
 				Expect(annotationsNode["meta.helm.sh/release-namespace"].(string)).To(Equal(namespace))
 
@@ -205,7 +229,7 @@ var _ = Describe("charts installations", Label("Charts"), func() {
 
 				//annotations
 				annotationsNode := dJson["metadata"].(map[string]interface{})["annotations"].(map[string]interface{})
-				Expect(annotationsNode["deployment.kubernetes.io/revision"].(string)).To(Equal("1"))
+				Expect(annotationsNode["deployment.kubernetes.io/revision"].(string)).To(Equal(expectedRevisionOnUpgrade))
 				Expect(annotationsNode["meta.helm.sh/release-name"].(string)).To(Equal(releaseName))
 				Expect(annotationsNode["meta.helm.sh/release-namespace"].(string)).To(Equal(namespace))
 
@@ -258,149 +282,6 @@ var _ = Describe("charts installations", Label("Charts"), func() {
 				//ports
 				Expect(cnt0PortsNode[0].(map[string]interface{})["containerPort"].(float64)).To(BeEquivalentTo(8080))
 				Expect(cnt0PortsNode[0].(map[string]interface{})["protocol"].(string)).To(Equal("TCP"))
-			})
-		})
-	})
-
-	When("deploying s3gw-acceptance-cosi/s3gw-cosi", Label("COSI"), func() {
-		namespace := NanoSecName("s3gw-acceptance-cosi")
-		releaseName := NanoSecName("s3gw-cosi")
-
-		BeforeEach(func() {
-			args := []string{"install", "--create-namespace", "-n", namespace,
-				"--set", "publicDomain=" + suiteProperties["S3GW_SYSTEM_DOMAIN"].(string),
-				"--set", "ui.publicDomain=" + suiteProperties["S3GW_SYSTEM_DOMAIN"].(string),
-				"--set", "imageTag=v" + suiteProperties["IMAGE_TAG"].(string),
-				"--set", "ui.imageTag=v" + suiteProperties["IMAGE_TAG"].(string),
-				"--set", "cosi.driver.imageTag=v" + suiteProperties["IMAGE_TAG"].(string),
-				"--set", "cosi.sidecar.imageTag=v" + suiteProperties["IMAGE_TAG"].(string),
-				"--set", "cosi.enabled=true",
-				releaseName, chartsRoot, "--wait"}
-
-			if extraArgs := suiteProperties["CHARTS_EXTRA_ARGS"].(string); len(extraArgs) > 0 {
-				out, err := Run("../..", true, "helm", append(args, strings.Split(extraArgs, " ")...)...)
-				Expect(err).ToNot(HaveOccurred(), out)
-			} else {
-				out, err := Run("../..", true, "helm", args...)
-				Expect(err).ToNot(HaveOccurred(), out)
-			}
-		})
-
-		AfterEach(func() {
-			out, err := Run("../..", true, "helm", "uninstall", "-n", namespace, releaseName, "--wait")
-			Expect(err).ToNot(HaveOccurred(), out)
-		})
-
-		It("has the expected s3gw-cosi deployment static values", func() {
-			By("getting the objectstorage-provisioner deployment", func() {
-				out, err := Kubectl("get", "deployments",
-					"-n", namespace,
-					releaseName+"-objectstorage-provisioner",
-					"-ojson")
-				Expect(err).ToNot(HaveOccurred())
-
-				var dJson map[string]interface{}
-				err = json.Unmarshal([]byte(out), &dJson)
-				Expect(err).ToNot(HaveOccurred())
-				Expect(dJson).ToNot(BeNil())
-
-				//deployment metadata
-				Expect(dJson["metadata"].(map[string]interface{})["name"].(string)).To(Equal(releaseName + "-objectstorage-provisioner"))
-				Expect(dJson["metadata"].(map[string]interface{})["namespace"].(string)).To(Equal(namespace))
-
-				//annotations
-				annotationsNode := dJson["metadata"].(map[string]interface{})["annotations"].(map[string]interface{})
-				Expect(annotationsNode["deployment.kubernetes.io/revision"].(string)).To(Equal("1"))
-				Expect(annotationsNode["meta.helm.sh/release-name"].(string)).To(Equal(releaseName))
-				Expect(annotationsNode["meta.helm.sh/release-namespace"].(string)).To(Equal(namespace))
-
-				//labels
-				labelNode := dJson["metadata"].(map[string]interface{})["labels"].(map[string]interface{})
-				Expect(labelNode["app.kubernetes.io/instance"].(string)).To(Equal(releaseName))
-				Expect(labelNode["app.kubernetes.io/managed-by"].(string)).To(Equal("Helm"))
-				Expect(labelNode["app.kubernetes.io/name"].(string)).To(Equal(chartName))
-				Expect(labelNode["app.kubernetes.io/version"].(string)).To(Equal("latest"))
-				Expect(labelNode["helm.sh/chart"].(string)).To(Equal(chartName + "-" + suiteProperties["CHARTS_VER"].(string)))
-
-				//replicas
-				Expect(dJson["spec"].(map[string]interface{})["replicas"].(float64)).To(BeEquivalentTo(1))
-
-				//matching labels
-				matchingLabelsNode := dJson["spec"].(map[string]interface{})["selector"].(map[string]interface{})["matchLabels"].(map[string]interface{})
-				Expect(matchingLabelsNode["app.kubernetes.io/component"]).To(Equal("cosi"))
-				Expect(matchingLabelsNode["app.kubernetes.io/instance"]).To(Equal(releaseName))
-				Expect(matchingLabelsNode["app.kubernetes.io/name"]).To(Equal(chartName))
-
-				//strategy
-				Expect(dJson["spec"].(map[string]interface{})["strategy"].(map[string]interface{})["type"].(string)).To(Equal("Recreate"))
-
-				//spec template metadata labels
-				specTemplateMetadataLables := dJson["spec"].(map[string]interface{})["template"].(map[string]interface{})["metadata"].(map[string]interface{})["labels"].(map[string]interface{})
-				Expect(specTemplateMetadataLables["app.kubernetes.io/component"]).To(Equal("cosi"))
-				Expect(specTemplateMetadataLables["app.kubernetes.io/instance"]).To(Equal(releaseName))
-				Expect(specTemplateMetadataLables["app.kubernetes.io/name"]).To(Equal(chartName))
-
-				//containers
-				containersNode := dJson["spec"].(map[string]interface{})["template"].(map[string]interface{})["spec"].(map[string]interface{})["containers"].([]interface{})
-
-				cnt0Node := containersNode[0].(map[string]interface{})
-
-				//envFrom
-				cnt0EnvFromNode := cnt0Node["envFrom"].([]interface{})
-				Expect(cnt0EnvFromNode[0].(map[string]interface{})["secretRef"].(map[string]interface{})["name"].(string)).To(Equal(releaseName + "-" + namespace + "-objectstorage-provisioner"))
-
-				//image
-				Expect(cnt0Node["image"].(string)).To(Equal(s3gwCOSIDriverImageName + ":v" + suiteProperties["IMAGE_TAG"].(string)))
-
-				//imagePullPolicy
-				Expect(cnt0Node["imagePullPolicy"].(string)).To(Equal("IfNotPresent"))
-
-				//name
-				Expect(cnt0Node["name"].(string)).To(Equal(releaseName + "-cosi-driver"))
-
-				volumeMountsNode := cnt0Node["volumeMounts"].([]interface{})
-
-				//volume mounts
-				Expect(volumeMountsNode[0].(map[string]interface{})["mountPath"].(string)).To(Equal("/var/lib/cosi"))
-				Expect(volumeMountsNode[0].(map[string]interface{})["name"].(string)).To(Equal("socket"))
-
-				cnt1Node := containersNode[1].(map[string]interface{})
-
-				//envFrom
-				cnt1EnvFromNode := cnt1Node["envFrom"].([]interface{})
-				Expect(cnt1EnvFromNode[0].(map[string]interface{})["secretRef"].(map[string]interface{})["name"].(string)).To(Equal(releaseName + "-" + namespace + "-objectstorage-provisioner"))
-
-				//image
-				Expect(cnt1Node["image"].(string)).To(Equal(s3gwCOSISidecarImageName + ":v" + suiteProperties["IMAGE_TAG"].(string)))
-
-				cnt1ArgsNode := cnt1Node["args"].([]interface{})
-
-				//cnt1 args
-				Expect(cnt1ArgsNode[0].(string)).To(Equal("--v=5"))
-
-				cnt1EnvNode := cnt1Node["env"].([]interface{})
-
-				//name
-				Expect(cnt1EnvNode[0].(map[string]interface{})["name"].(string)).To(Equal("POD_NAMESPACE"))
-
-				volumeMountsNode = cnt1Node["volumeMounts"].([]interface{})
-
-				//volume mounts
-				Expect(volumeMountsNode[0].(map[string]interface{})["mountPath"].(string)).To(Equal("/var/lib/cosi"))
-				Expect(volumeMountsNode[0].(map[string]interface{})["name"].(string)).To(Equal("socket"))
-
-				//serviceAccount
-				serviceAccount := dJson["spec"].(map[string]interface{})["template"].(map[string]interface{})["spec"].(map[string]interface{})["serviceAccount"].(string)
-				Expect(serviceAccount).To(Equal(releaseName + "-" + namespace + "-objectstorage-provisioner-sa"))
-
-				//serviceAccountName
-				serviceAccountName := dJson["spec"].(map[string]interface{})["template"].(map[string]interface{})["spec"].(map[string]interface{})["serviceAccountName"].(string)
-				Expect(serviceAccountName).To(Equal(releaseName + "-" + namespace + "-objectstorage-provisioner-sa"))
-
-				//volumes
-				volumesNode := dJson["spec"].(map[string]interface{})["template"].(map[string]interface{})["spec"].(map[string]interface{})["volumes"].([]interface{})
-
-				Expect(volumesNode[0].(map[string]interface{})["name"].(string)).To(Equal("socket"))
 			})
 		})
 	})

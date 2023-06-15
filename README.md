@@ -35,16 +35,17 @@
 
 ### Upgrade Test Matrix
 
-| From/To |0.15.0|0.16.0|0.17.0|
-|:----|:----:|:----:|:----:|
-|0.15.0||![.](./assets/tests/u0.15.0_0.16.0.svg)|![.](./assets/tests/u0.15.0_0.17.0.svg)|
-|0.16.0|||![.](./assets/tests/u0.16.0_0.17.0.svg)|
+| From/To | 0.15.0 | 0.16.0 | 0.17.0 |
+|:-------:|:------:|:------:|:------:|
+|  0.14.0 |![.](./assets/tests/u0.14.0_0.15.0.svg)|![.](./assets/tests/u0.14.0_0.16.0.svg)|![.](./assets/not-apply.svg)|
+|  0.15.0 |        |![.](./assets/tests/u0.15.0_0.16.0.svg)|![.](./assets/not-apply.svg)|
+|  0.16.0 |        |        |![.](./assets/not-apply.svg)|
 
-|Sym|Mean|
+|Sym||
 |:--|:--|
-|![.](./assets/OK.svg)|upgrade test has passed|
-|![.](./assets/KO.svg)|upgrade test has failed|
-|![.](./assets/not-apply.svg)|upgrade test cannot apply due to releases incompatibility|
+|![.](./assets/OK.svg)|passed|
+|![.](./assets/KO.svg)|failed|
+|![.](./assets/not-apply.svg)|incompatible|
 
 ## Local setup
 

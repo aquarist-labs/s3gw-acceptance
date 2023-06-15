@@ -16,6 +16,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	. "github.com/aquarist-labs/s3gw/acceptance/helpers"
 	. "github.com/onsi/ginkgo/v2"
@@ -70,16 +71,23 @@ var _ = Describe("COSI workflow - single instance", Label("COSI"), func() {
 			Expect(err).ToNot(HaveOccurred())
 			Expect(suiteProperties).ToNot(BeNil())
 		}
-		out, err := Run("../..", true, "helm", "install", "--create-namespace", "-n", namespace,
-			"--set", "publicDomain="+suiteProperties["S3GW_SYSTEM_DOMAIN"].(string),
-			"--set", "ui.publicDomain="+suiteProperties["S3GW_SYSTEM_DOMAIN"].(string),
-			"--set", "imageTag=v"+suiteProperties["IMAGE_TAG"].(string),
-			"--set", "ui.imageTag=v"+suiteProperties["IMAGE_TAG"].(string),
-			"--set", "cosi.driver.imageTag=v"+suiteProperties["IMAGE_TAG"].(string),
-			"--set", "cosi.sidecar.imageTag=v"+suiteProperties["IMAGE_TAG"].(string),
+		args := []string{"install", "--create-namespace", "-n", namespace,
+			"--set", "publicDomain=" + suiteProperties["S3GW_SYSTEM_DOMAIN"].(string),
+			"--set", "ui.publicDomain=" + suiteProperties["S3GW_SYSTEM_DOMAIN"].(string),
+			"--set", "imageTag=v" + suiteProperties["IMAGE_TAG"].(string),
+			"--set", "ui.imageTag=v" + suiteProperties["IMAGE_TAG"].(string),
+			"--set", "cosi.driver.imageTag=v" + suiteProperties["IMAGE_TAG"].(string),
+			"--set", "cosi.sidecar.imageTag=v" + suiteProperties["IMAGE_TAG"].(string),
 			"--set", "cosi.enabled=true",
-			releaseName, chartsRoot, "--wait")
-		Expect(err).ToNot(HaveOccurred(), out)
+			releaseName, chartsRoot, "--wait"}
+
+		if extraArgs := suiteProperties["CHARTS_EXTRA_ARGS"].(string); len(extraArgs) > 0 {
+			out, err := Run("../..", true, "helm", append(args, strings.Split(extraArgs, " ")...)...)
+			Expect(err).ToNot(HaveOccurred(), out)
+		} else {
+			out, err := Run("../..", true, "helm", args...)
+			Expect(err).ToNot(HaveOccurred(), out)
+		}
 	})
 
 	AfterEach(func() {
