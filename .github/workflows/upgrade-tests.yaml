@@ -7,7 +7,13 @@ on:
       charts-ver-prev:
         required: true
         type: string
+      charts-prev-extra-args:
+        required: true
+        type: string
       charts-ver:
+        required: true
+        type: string
+      charts-extra-args:
         required: true
         type: string
       image-tag-prev:
@@ -15,6 +21,15 @@ on:
         type: string
       image-tag:
         required: true
+        type: string
+      release:
+        required: false
+        type: string
+      namespace:
+        required: false
+        type: string
+      expected-revision-on-upgrade:
+        required: false
         type: string
     outputs:
       result:
@@ -48,9 +63,14 @@ jobs:
         env:
           SKIP_IMPORT_IMAGES: 1
           CHARTS_VER_PREV: ${{ inputs.charts-ver-prev }}
+          CHARTS_PREV_EXTRA_ARGS: ${{ inputs.charts-prev-extra-args }}
           CHARTS_VER: ${{ inputs.charts-ver }}
+          CHARTS_EXTRA_ARGS: ${{ inputs.charts-extra-args }}
           IMAGE_TAG_PREV: ${{ inputs.image-tag-prev }}
           IMAGE_TAG: ${{ inputs.image-tag }}
+          RELEASE: ${{ inputs.release }}
+          NAMESPACE: ${{ inputs.namespace }}
+          EXPECTED_REVISION_ON_UPGRADE: ${{ inputs.expected-revision-on-upgrade }}
         run: |
           make acceptance-cluster-create
           make acceptance-cluster-prepare
@@ -58,4 +78,4 @@ jobs:
           make acceptance-test-upgrade
           exitcode="$?"
           echo "exitcode=$exitcode" >> $GITHUB_OUTPUT
-          exit "$exitcode"
+          exit 0

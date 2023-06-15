@@ -62,5 +62,9 @@ fi
 # Dump non-static properties used by acceptance tests
 dump_suite_properties
 
+# Add the s3gw repo
+helm repo add s3gw https://aquarist-labs.github.io/s3gw-charts/
+helm repo update
+
 echo
 echo "Done preparing k3d environment! ✔️"

@@ -14,23 +14,38 @@ jobs:
     uses: ./.github/workflows/upgrade-tests.yaml
     with:
       charts-ver-prev: "0.14.0"
+      charts-prev-extra-args: "--set storageClass.name= --set storageClass.create=false"
       charts-ver: "0.15.0"
+      charts-extra-args: ""
       image-tag-prev: "0.14.0"
       image-tag: "0.15.0"
+      release: "s3gw"
+      namespace: "s3gw"
+      expected-revision-on-upgrade: "2"
   upgrade-tests-invoke-0_14_0-0_16_0:
     uses: ./.github/workflows/upgrade-tests.yaml
     with:
       charts-ver-prev: "0.14.0"
+      charts-prev-extra-args: "--set storageClass.name= --set storageClass.create=false"
       charts-ver: "0.16.0"
+      charts-extra-args: ""
       image-tag-prev: "0.14.0"
       image-tag: "0.16.0"
+      release: "s3gw"
+      namespace: "s3gw"
+      expected-revision-on-upgrade: "2"
   upgrade-tests-invoke-0_15_0-0_16_0:
     uses: ./.github/workflows/upgrade-tests.yaml
     with:
       charts-ver-prev: "0.15.0"
+      charts-prev-extra-args: "--set storageClass.name= --set storageClass.create=false"
       charts-ver: "0.16.0"
+      charts-extra-args: ""
       image-tag-prev: "0.15.0"
       image-tag: "0.16.0"
+      release: "s3gw"
+      namespace: "s3gw"
+      expected-revision-on-upgrade: "2"
 
   upgrade-tests-result-0_14_0-0_15_0:
     env:
