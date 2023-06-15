@@ -1,11 +1,11 @@
-# s3gw-testing
+# s3gw-acceptance
 
-![License](https://img.shields.io/github/license/giubacc/s3gw-system-tests)
-![Lint](https://github.com/giubacc/s3gw-system-tests/actions/workflows/lint.yaml/badge.svg)
+![License](https://img.shields.io/github/license/aquarist-labs/s3gw-acceptance)
+![Lint](https://github.com/aquarist-labs/s3gw-acceptance/actions/workflows/lint.yaml/badge.svg)
 
 <!-- TOC -->
 
-- [s3gw-testing](#s3gw-testing)
+- [s3gw-acceptance](#s3gw-acceptance)
   - [Test Status Overview](#test-status-overview)
     - [Recurring Tests](#recurring-tests)
     - [Upgrade Test Matrix](#upgrade-test-matrix)
@@ -31,7 +31,7 @@
 
 ### Recurring Tests
 
-![Last Release Weekly Tests](https://github.com/giubacc/s3gw-system-tests/actions/workflows/last-release-weekly-tests.yaml/badge.svg)
+![Last Release Weekly Tests](https://github.com/aquarist-labs/s3gw-acceptance/actions/workflows/last-release-weekly-tests.yaml/badge.svg)
 
 ### Upgrade Test Matrix
 
